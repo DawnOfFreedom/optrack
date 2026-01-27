@@ -5,6 +5,80 @@ const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+// OPtrack logo
+const OPTRACK_LOGO_URL = 'https://i.imgur.com/btcDnw1.png';
+
+/**
+ * Send a photo with caption via Telegram (using URL)
+ */
+export async function sendPhoto(photoUrl, caption = '') {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.warn('Telegram not configured');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${TELEGRAM_API}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        photo: photoUrl,
+        caption,
+        parse_mode: 'HTML',
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Telegram photo error:', data.description);
+    }
+    return data;
+  } catch (error) {
+    console.error('Failed to send Telegram photo:', error.message);
+    return null;
+  }
+}
+
+/**
+ * Send a photo file directly via Telegram
+ */
+export async function sendPhotoFile(filePath, caption = '') {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.warn('Telegram not configured');
+    return null;
+  }
+
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+
+    // Read file as blob
+    const fileBuffer = fs.readFileSync(filePath);
+    const blob = new Blob([fileBuffer], { type: 'image/png' });
+
+    const form = new FormData();
+    form.append('chat_id', CHAT_ID);
+    form.append('photo', blob, path.basename(filePath));
+    form.append('caption', caption);
+    form.append('parse_mode', 'HTML');
+
+    const response = await fetch(`${TELEGRAM_API}/sendPhoto`, {
+      method: 'POST',
+      body: form,
+    });
+
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Telegram photo error:', data.description);
+    }
+    return data;
+  } catch (error) {
+    console.error('Failed to send Telegram photo:', error.message);
+    return null;
+  }
+}
+
 /**
  * Send a message via Telegram
  */
@@ -104,10 +178,10 @@ ${lines}
 }
 
 /**
- * Send startup message
+ * Send startup message with logo
  */
 export async function sendStartupMessage() {
-  const message = `
+  const caption = `
 🚀 <b>OPtrack Started</b>
 
 Monitoring OP_NET tokens...
@@ -116,7 +190,19 @@ Alerts are active.
 <i>${new Date().toLocaleTimeString()}</i>
 `.trim();
 
-  return sendMessage(message);
+  // Try to send with local logo file
+  const { fileURLToPath } = await import('url');
+  const { dirname, join } = await import('path');
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const logoPath = join(__dirname, '../public/logo.png');
+
+  const result = await sendPhotoFile(logoPath, caption);
+
+  // Fallback to text message if photo fails
+  if (!result?.ok) {
+    return sendMessage(caption);
+  }
+  return result;
 }
 
 /**
