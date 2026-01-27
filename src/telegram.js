@@ -1,0 +1,139 @@
+// Telegram Bot Integration for OPtrack
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+/**
+ * Send a message via Telegram
+ */
+export async function sendMessage(text, options = {}) {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.warn('Telegram not configured. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+        ...options,
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Telegram error:', data.description);
+    }
+    return data;
+  } catch (error) {
+    console.error('Failed to send Telegram message:', error.message);
+    return null;
+  }
+}
+
+/**
+ * Format price for display
+ */
+function formatPrice(sats) {
+  if (sats === null || sats === undefined) return 'N/A';
+  if (sats < 0.01) return sats.toExponential(2) + ' sats';
+  if (sats < 1) return sats.toFixed(4) + ' sats';
+  if (sats < 1000) return sats.toFixed(2) + ' sats';
+  if (sats < 1000000) return (sats / 1000).toFixed(1) + 'K sats';
+  return (sats / 1000000).toFixed(2) + 'M sats';
+}
+
+/**
+ * Format percentage change
+ */
+function formatChange(oldPrice, newPrice) {
+  if (!oldPrice || !newPrice) return '';
+  const change = ((newPrice - oldPrice) / oldPrice) * 100;
+  const emoji = change >= 0 ? '📈' : '📉';
+  const sign = change >= 0 ? '+' : '';
+  return `${emoji} ${sign}${change.toFixed(2)}%`;
+}
+
+/**
+ * Send price alert
+ */
+export async function sendPriceAlert(token, oldPrice, newPrice, threshold) {
+  const change = ((newPrice - oldPrice) / oldPrice) * 100;
+  const emoji = change >= 0 ? '🟢' : '🔴';
+
+  const message = `
+${emoji} <b>${token.symbol} Price Alert</b>
+
+${formatChange(oldPrice, newPrice)}
+
+Old: ${formatPrice(oldPrice)}
+New: ${formatPrice(newPrice)}
+Threshold: ${threshold}%
+
+<i>OPtrack • ${new Date().toLocaleTimeString()}</i>
+`.trim();
+
+  return sendMessage(message);
+}
+
+/**
+ * Send periodic status update
+ */
+export async function sendStatusUpdate(tokens) {
+  const lines = tokens
+    .filter(t => !t.error)
+    .map(t => `• <b>${t.symbol}</b>: ${formatPrice(t.price)}`)
+    .join('\n');
+
+  const message = `
+📊 <b>OPtrack Status</b>
+
+${lines}
+
+<i>${new Date().toLocaleTimeString()}</i>
+`.trim();
+
+  return sendMessage(message);
+}
+
+/**
+ * Send startup message
+ */
+export async function sendStartupMessage() {
+  const message = `
+🚀 <b>OPtrack Started</b>
+
+Monitoring OP_NET tokens...
+Alerts are active.
+
+<i>${new Date().toLocaleTimeString()}</i>
+`.trim();
+
+  return sendMessage(message);
+}
+
+/**
+ * Get updates to find chat ID (helper function)
+ */
+export async function getUpdates() {
+  if (!BOT_TOKEN) {
+    console.error('BOT_TOKEN not set');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${TELEGRAM_API}/getUpdates`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to get updates:', error.message);
+    return null;
+  }
+}

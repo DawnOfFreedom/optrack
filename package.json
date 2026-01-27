@@ -6,7 +6,10 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "server": "node src/server.js"
+    "server": "node src/server.js",
+    "monitor": "node src/monitor.js",
+    "test-telegram": "node src/test-telegram.js",
+    "get-chat-id": "node src/get-chat-id.js"
   },
   "keywords": [
     "opnet",
@@ -16,6 +19,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "opnet": "^1.0.0"
   }

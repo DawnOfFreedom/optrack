@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { getAllTokens } from './api.js';
 import { config } from './config.js';
+import { startAlertMonitor } from './alerts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -30,7 +32,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', network: config.network.name });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`OPtrack server running at http://localhost:${PORT}`);
   console.log(`Network: ${config.network.name}`);
+
+  // Start Telegram alert monitor
+  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+    await startAlertMonitor();
+  } else {
+    console.log('Telegram alerts disabled (no token/chat_id configured)');
+  }
 });
