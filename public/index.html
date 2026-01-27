@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPtrack - OP_NET Token Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: rgba(255, 255, 255, 0.03);
+      --bg-card: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --accent-orange: #f7931a;
+      --accent-pink: #ff007a;
+      --accent-purple: #8b5cf6;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --success: #00d395;
+      --error: #ff6b6b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Colorful animated gradient background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 0% 0%, rgba(255, 0, 122, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 0% 100%, rgba(247, 147, 26, 0.12) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: gradientShift 20s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Logo Option 1: Gradient square with chart icon */
+    .logo-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #ff007a, #8b5cf6, #06b6d4);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(255, 0, 122, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      background: rgba(10, 10, 15, 0.85);
+      border-radius: 12px;
+    }
+
+    .logo-icon svg {
+      position: relative;
+      z-index: 1;
+      width: 28px;
+      height: 28px;
+    }
+
+    .logo-text {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff007a, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 400;
+      margin-bottom: 1rem;
+    }
+
+    .network-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .network-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-item {
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-item:nth-child(1) {
+      border-color: rgba(255, 0, 122, 0.2);
+    }
+    .stat-item:nth-child(1):hover {
+      border-color: rgba(255, 0, 122, 0.5);
+      box-shadow: 0 0 30px rgba(255, 0, 122, 0.15);
+    }
+    .stat-item:nth-child(1) .stat-value {
+      color: #ff007a;
+    }
+
+    .stat-item:nth-child(2) {
+      border-color: rgba(139, 92, 246, 0.2);
+    }
+    .stat-item:nth-child(2):hover {
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+    }
+    .stat-item:nth-child(2) .stat-value {
+      color: #8b5cf6;
+    }
+
+    .stat-item:nth-child(3) {
+      border-color: rgba(6, 182, 212, 0.2);
+    }
+    .stat-item:nth-child(3):hover {
+      border-color: rgba(6, 182, 212, 0.5);
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+    }
+    .stat-item:nth-child(3) .stat-value {
+      color: #06b6d4;
+    }
+
+    .stat-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
+    /* Token cards */
+    .tokens {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .token-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .token-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--token-gradient, linear-gradient(90deg, #ff007a, #8b5cf6));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .token-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .token-card:hover::before {
+      opacity: 1;
+    }
+
+    /* MOTO styling */
+    .token-card[data-symbol="MOTO"] {
+      border-color: rgba(247, 147, 26, 0.2);
+      --token-gradient: linear-gradient(90deg, #f7931a, #ffc107);
+      --token-color: #f7931a;
+    }
+    .token-card[data-symbol="MOTO"]:hover {
+      border-color: rgba(247, 147, 26, 0.4);
+      box-shadow: 0 8px 32px rgba(247, 147, 26, 0.15);
+    }
+
+    /* PILL styling - subtle orange accent */
+    .token-card[data-symbol="PILL"] {
+      border-color: rgba(247, 147, 26, 0.2);
+      --token-gradient: linear-gradient(90deg, #f7931a, #ffb347);
+      --token-color: #f7931a;
+    }
+    .token-card[data-symbol="PILL"]:hover {
+      border-color: rgba(247, 147, 26, 0.4);
+      box-shadow: 0 8px 32px rgba(247, 147, 26, 0.15);
+    }
+
+    /* Default token styling */
+    .token-card:not([data-symbol="MOTO"]):not([data-symbol="PILL"]) {
+      border-color: rgba(139, 92, 246, 0.2);
+      --token-gradient: linear-gradient(90deg, #8b5cf6, #06b6d4);
+      --token-color: #8b5cf6;
+    }
+
+    .token-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+    }
+
+    .token-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Token icons with unique gradients */
+    .token-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* MOTO icon - Real logo */
+    .token-icon.moto {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      box-shadow: 0 4px 20px rgba(247, 147, 26, 0.4);
+      padding: 8px;
+    }
+
+    .token-icon.moto img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* PILL icon - Orange Pill (natural tilt) */
+    .token-icon.pill {
+      background: #1a1a2e;
+      box-shadow: 0 4px 20px rgba(247, 147, 26, 0.25);
+      position: relative;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .token-icon.pill::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 26px;
+      background: linear-gradient(180deg, #f7931a 50%, #f5f5f5 50%);
+      border-radius: 6px;
+      transform: rotate(35deg);
+    }
+
+    /* Default icon */
+    .token-icon.default {
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .token-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .token-symbol {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 400;
+    }
+
+    .token-price-container {
+      text-align: right;
+    }
+
+    .token-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--token-color, #8b5cf6);
+    }
+
+    .token-price-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .token-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 600px) {
+      .token-details {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .detail-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.875rem;
+      transition: all 0.2s ease;
+    }
+
+    .detail-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .detail-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border-color);
+      border-radius: 50%;
+      border-top-color: #ff007a;
+      border-right-color: #8b5cf6;
+      border-bottom-color: #06b6d4;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error state */
+    .token-card.error {
+      border-color: rgba(255, 107, 107, 0.3);
+      --token-gradient: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+      --token-color: #ff6b6b;
+    }
+
+    .token-card.error .token-icon {
+      background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 0.875rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .update-time {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .footer-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .footer-text a {
+      background: linear-gradient(135deg, #ff007a, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .footer-text a:hover {
+      opacity: 0.8;
+    }
+
+    .opnet-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .opnet-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      vertical-align: middle;
+      transition: transform 0.2s ease;
+    }
+
+    .opnet-link:hover .opnet-icon {
+      transform: scale(1.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem 1rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+      }
+
+      .token-price {
+        font-size: 1.25rem;
+      }
+    }
+
+    /* Logo Options Preview (remove in production) */
+    .logo-options {
+      display: none; /* Set to flex to preview */
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .logo-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-option span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Option 1: Gradient border with chart */
+    .logo-v1 {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #ff007a, #8b5cf6, #06b6d4);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(255, 0, 122, 0.3);
+      position: relative;
+    }
+    .logo-v1::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      background: var(--bg-primary);
+      border-radius: 12px;
+    }
+    .logo-v1 svg {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Option 2: Solid gradient with "OP" text */
+    .logo-v2 {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #ff007a, #8b5cf6);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: white;
+      box-shadow: 0 4px 24px rgba(139, 92, 246, 0.4);
+      letter-spacing: -1px;
+    }
+
+    /* Option 3: Circle with pulse ring */
+    .logo-v3 {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: white;
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3), 0 4px 24px rgba(6, 182, 212, 0.4);
+      letter-spacing: -0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <div class="container">
+    <!-- Logo Options Preview - uncomment to see all options -->
+    <div class="logo-options" id="logo-preview">
+      <div class="logo-option">
+        <div class="logo-v1">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round">
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#ff007a"/>
+                <stop offset="50%" style="stop-color:#8b5cf6"/>
+                <stop offset="100%" style="stop-color:#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <span>Optie 1</span>
+      </div>
+      <div class="logo-option">
+        <div class="logo-v2">OP</div>
+        <span>Optie 2</span>
+      </div>
+      <div class="logo-option">
+        <div class="logo-v3">OPt</div>
+        <span>Optie 3</span>
+      </div>
+    </div>
+
+    <header>
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round">
+            <defs>
+              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#ff007a"/>
+                <stop offset="50%" style="stop-color:#8b5cf6"/>
+                <stop offset="100%" style="stop-color:#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <span class="logo-text">OPtrack</span>
+      </div>
+      <p class="tagline">Real-time OP_NET Token Tracker</p>
+      <div class="network-badge" id="network">connecting...</div>
+    </header>
+
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-item">
+        <div class="stat-value" id="total-tokens">-</div>
+        <div class="stat-label">Tokens</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="total-value">-</div>
+        <div class="stat-label">Total Value</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="last-block">-</div>
+        <div class="stat-label">Refresh</div>
+      </div>
+    </div>
+
+    <div class="tokens" id="tokens">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div>Loading tokens...</div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="update-time" id="update-time"></div>
+      <div class="footer-text">
+        Auto-refresh every 30s · Built for
+        <a href="https://opnet.org" target="_blank" class="opnet-link">
+          <img src="https://avatars.githubusercontent.com/u/165520297?s=200&v=4" alt="OP_NET" class="opnet-icon" />
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Logo preview disabled - Option 1 selected
+    const SHOW_LOGO_PREVIEW = false;
+
+    function formatPrice(sats) {
+      if (sats === null || sats === undefined) return 'N/A';
+      if (sats < 0.01) return sats.toExponential(2);
+      if (sats < 1) return sats.toFixed(4);
+      if (sats < 1000) return sats.toFixed(2);
+      if (sats < 1000000) return (sats / 1000).toFixed(1) + 'K';
+      if (sats < 100000000) return (sats / 1000000).toFixed(2) + 'M';
+      const btc = sats / 100000000;
+      return btc.toFixed(4) + ' BTC';
+    }
+
+    function formatSupply(supply) {
+      if (supply >= 1e9) return (supply / 1e9).toFixed(2) + 'B';
+      if (supply >= 1e6) return (supply / 1e6).toFixed(2) + 'M';
+      if (supply >= 1e3) return (supply / 1e3).toFixed(1) + 'K';
+      return supply.toLocaleString();
+    }
+
+    function formatAddress(addr) {
+      if (!addr) return '-';
+      return addr.slice(0, 8) + '...' + addr.slice(-6);
+    }
+
+    function getTokenIconClass(symbol) {
+      const s = (symbol || '').toUpperCase();
+      if (s === 'MOTO') return 'moto';
+      if (s === 'PILL') return 'pill';
+      return 'default';
+    }
+
+    function getTokenInitials(name, symbol) {
+      if (symbol && symbol.length <= 4) return symbol;
+      if (name) return name.slice(0, 2).toUpperCase();
+      return '??';
+    }
+
+    function getTokenIconContent(symbol, name) {
+      const s = (symbol || '').toUpperCase();
+      if (s === 'MOTO') {
+        return '<img src="https://motoswap.org/images/tokens/moto.png" alt="MOTO" />';
+      }
+      if (s === 'PILL') {
+        return ''; // CSS handles the pill shape
+      }
+      return getTokenInitials(name, symbol);
+    }
+
+    function renderToken(token) {
+      if (token.error) {
+        return `
+          <div class="token-card error">
+            <div class="token-header">
+              <div class="token-info">
+                <div class="token-icon default">!</div>
+                <div>
+                  <div class="token-name">${token.key || 'Unknown'}</div>
+                  <div class="token-symbol">Error</div>
+                </div>
+              </div>
+            </div>
+            <div class="error-message">${token.error}</div>
+          </div>
+        `;
+      }
+
+      const marketCap = token.price ? token.price * token.totalSupply : null;
+      const iconClass = getTokenIconClass(token.symbol);
+
+      return `
+        <div class="token-card" data-symbol="${token.symbol}">
+          <div class="token-header">
+            <div class="token-info">
+              <div class="token-icon ${iconClass}">${getTokenIconContent(token.symbol, token.name)}</div>
+              <div>
+                <div class="token-name">${token.name}</div>
+                <div class="token-symbol">${token.symbol}</div>
+              </div>
+            </div>
+            <div class="token-price-container">
+              <div class="token-price">${formatPrice(token.price)} sats</div>
+              <div class="token-price-label">per token</div>
+            </div>
+          </div>
+          <div class="token-details">
+            <div class="detail-item">
+              <div class="detail-label">Supply</div>
+              <div class="detail-value">${formatSupply(token.totalSupply)}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Decimals</div>
+              <div class="detail-value">${token.decimals}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Market Cap</div>
+              <div class="detail-value">${marketCap ? formatPrice(marketCap) + ' sats' : 'N/A'}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Contract</div>
+              <div class="detail-value">${formatAddress(token.address)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateStats(tokens) {
+      const validTokens = tokens.filter(t => !t.error);
+      document.getElementById('total-tokens').textContent = validTokens.length;
+
+      const totalValue = validTokens.reduce((sum, t) => {
+        if (t.price && t.totalSupply) {
+          return sum + (t.price * t.totalSupply);
+        }
+        return sum;
+      }, 0);
+
+      document.getElementById('total-value').textContent = totalValue > 0 ? formatPrice(totalValue) : '-';
+      document.getElementById('last-block').textContent = '30s';
+    }
+
+    async function fetchTokens() {
+      try {
+        const res = await fetch('/api/tokens');
+        const data = await res.json();
+
+        document.getElementById('network').textContent = data.network;
+        document.getElementById('tokens').innerHTML = data.tokens.map(renderToken).join('');
+        document.getElementById('update-time').textContent =
+          'Last updated: ' + new Date(data.timestamp).toLocaleTimeString();
+
+        updateStats(data.tokens);
+      } catch (error) {
+        document.getElementById('tokens').innerHTML =
+          `<div class="token-card error">
+            <div class="token-header">
+              <div class="token-info">
+                <div class="token-icon default">!</div>
+                <div>
+                  <div class="token-name">Connection Error</div>
+                  <div class="token-symbol">Failed to fetch</div>
+                </div>
+              </div>
+            </div>
+            <div class="error-message">${error.message}</div>
+          </div>`;
+      }
+    }
+
+    // Initial fetch
+    fetchTokens();
+
+    // Auto-refresh every 30 seconds
+    setInterval(fetchTokens, 30000);
+
+    // Countdown timer
+    let countdown = 30;
+    setInterval(() => {
+      countdown--;
+      if (countdown <= 0) countdown = 30;
+      document.getElementById('last-block').textContent = countdown + 's';
+    }, 1000);
+  </script>
+</body>
+</html>

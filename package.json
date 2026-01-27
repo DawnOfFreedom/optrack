@@ -1,0 +1,22 @@
+{
+  "name": "optrack",
+  "version": "0.1.0",
+  "description": "OP_NET token price tracker",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "server": "node src/server.js"
+  },
+  "keywords": [
+    "opnet",
+    "bitcoin",
+    "token",
+    "tracker"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "opnet": "^1.0.0"
+  }
+}
