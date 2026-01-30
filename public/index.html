@@ -681,14 +681,14 @@
 
     .input-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
 
-    @media (max-width: 600px) {
+    @media (min-width: 600px) {
       .input-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, 1fr);
       }
     }
 
@@ -963,6 +963,13 @@
           </div>
           <div class="input-group">
             <label>
+              Miles Raced
+              <span class="token-badge nft">RACE</span>
+            </label>
+            <input type="number" id="calc-miles" placeholder="0" min="0" step="1">
+          </div>
+          <div class="input-group">
+            <label>
               PILL Holdings
               <span class="token-badge pill">TOKEN</span>
             </label>
@@ -989,7 +996,7 @@
           <div class="result-item">
             <div class="result-label">Expected Airdrops</div>
             <div class="result-value" id="calc-airdrops">0 MOTO</div>
-            <div class="result-sub">Based on MotoCats</div>
+            <div class="result-sub">Based on miles raced</div>
           </div>
           <div class="result-item coming-soon">
             <div class="result-label">LP Rewards</div>
@@ -1179,7 +1186,11 @@
 
     // Strategy Calculator
     let cachedTokenData = [];
-    const AIRDROP_PER_MOTOCAT = 1000; // MOTO per MotoCat (placeholder)
+    // 1.9% of 1B MOTO supply (19M) distributed based on miles raced
+    const TOTAL_MOTO_SUPPLY = 1_000_000_000;
+    const RACE_REWARD_PERCENT = 1.9;
+    const TOTAL_RACE_REWARDS = TOTAL_MOTO_SUPPLY * RACE_REWARD_PERCENT / 100; // 19,000,000 MOTO
+    const TOTAL_MILES_RACED = 2_421_621_566; // Current total miles across all MotoCats
 
     function getTokenBySymbol(symbol) {
       return cachedTokenData.find(t => t.symbol?.toUpperCase() === symbol.toUpperCase());
@@ -1188,6 +1199,7 @@
     function calculatePortfolio() {
       const motoAmount = parseFloat(document.getElementById('calc-moto').value) || 0;
       const motocatsAmount = parseInt(document.getElementById('calc-motocats').value) || 0;
+      const milesRaced = parseInt(document.getElementById('calc-miles').value) || 0;
       const pillAmount = parseFloat(document.getElementById('calc-pill').value) || 0;
 
       const motoToken = getTokenBySymbol('MOTO');
@@ -1228,10 +1240,12 @@
         <span class="supply-item"><span class="dot pill"></span> PILL: ${pillPercent.toFixed(4)}%</span>
       `;
 
-      // Expected Airdrops (based on MotoCats)
-      const expectedAirdrop = motocatsAmount * AIRDROP_PER_MOTOCAT;
+      // Expected Airdrops (based on Miles Raced)
+      // Formula: (Your Miles / Total Miles) * 19,000,000 MOTO
+      const milesPercent = milesRaced / TOTAL_MILES_RACED;
+      const expectedAirdrop = milesPercent * TOTAL_RACE_REWARDS;
       document.getElementById('calc-airdrops').textContent =
-        expectedAirdrop > 0 ? formatSupply(expectedAirdrop) + ' MOTO' : '0 MOTO';
+        expectedAirdrop > 0 ? formatSupply(Math.round(expectedAirdrop)) + ' MOTO' : '0 MOTO';
     }
 
     // Update cached token data when fetching
@@ -1270,6 +1284,7 @@
     // Add event listeners for calculator inputs
     document.getElementById('calc-moto').addEventListener('input', calculatePortfolio);
     document.getElementById('calc-motocats').addEventListener('input', calculatePortfolio);
+    document.getElementById('calc-miles').addEventListener('input', calculatePortfolio);
     document.getElementById('calc-pill').addEventListener('input', calculatePortfolio);
   </script>
 </body>
