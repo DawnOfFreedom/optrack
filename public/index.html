@@ -625,6 +625,244 @@
       box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3), 0 4px 24px rgba(6, 182, 212, 0.4);
       letter-spacing: -0.5px;
     }
+
+    /* Strategy Calculator */
+    .calculator-section {
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .section-title h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .calculator-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 20px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .calculator-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-group label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .input-group label .token-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .input-group label .token-badge.moto {
+      background: rgba(247, 147, 26, 0.2);
+      color: #f7931a;
+    }
+
+    .input-group label .token-badge.nft {
+      background: rgba(139, 92, 246, 0.2);
+      color: #8b5cf6;
+    }
+
+    .input-group label .token-badge.pill {
+      background: rgba(247, 147, 26, 0.2);
+      color: #f7931a;
+    }
+
+    .input-group input {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .results-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+      margin: 1.5rem 0;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (min-width: 600px) {
+      .result-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .result-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .result-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .result-item.highlight {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .result-item.coming-soon {
+      opacity: 0.5;
+      position: relative;
+    }
+
+    .result-item.coming-soon::after {
+      content: 'Coming Soon';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg-primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .result-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+    }
+
+    .result-item.highlight .result-value {
+      color: #10b981;
+    }
+
+    .result-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .supply-breakdown {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .supply-item {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .supply-item .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .supply-item .dot.moto {
+      background: #f7931a;
+    }
+
+    .supply-item .dot.pill {
+      background: #f7931a;
+    }
   </style>
 </head>
 <body>
@@ -699,6 +937,68 @@
         <div>Loading tokens...</div>
       </div>
     </div>
+
+    <!-- Strategy Calculator -->
+    <section class="calculator-section">
+      <div class="section-title">
+        <div class="section-title-icon">&#x1F4CA;</div>
+        <h2>Strategy Calculator</h2>
+      </div>
+
+      <div class="calculator-card">
+        <div class="input-grid">
+          <div class="input-group">
+            <label>
+              MOTO Holdings
+              <span class="token-badge moto">TOKEN</span>
+            </label>
+            <input type="number" id="calc-moto" placeholder="0" min="0" step="any">
+          </div>
+          <div class="input-group">
+            <label>
+              MotoCats
+              <span class="token-badge nft">NFT</span>
+            </label>
+            <input type="number" id="calc-motocats" placeholder="0" min="0" step="1">
+          </div>
+          <div class="input-group">
+            <label>
+              PILL Holdings
+              <span class="token-badge pill">TOKEN</span>
+            </label>
+            <input type="number" id="calc-pill" placeholder="0" min="0" step="any">
+          </div>
+        </div>
+
+        <div class="results-divider"></div>
+
+        <div class="result-grid">
+          <div class="result-item highlight">
+            <div class="result-label">Portfolio Value</div>
+            <div class="result-value" id="calc-portfolio-value">0 sats</div>
+            <div class="result-sub" id="calc-portfolio-btc"></div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">% of Supply</div>
+            <div class="result-value" id="calc-supply-percent">0%</div>
+            <div class="supply-breakdown" id="calc-supply-breakdown">
+              <span class="supply-item"><span class="dot moto"></span> MOTO: 0%</span>
+              <span class="supply-item"><span class="dot pill"></span> PILL: 0%</span>
+            </div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Expected Airdrops</div>
+            <div class="result-value" id="calc-airdrops">0 MOTO</div>
+            <div class="result-sub">Based on MotoCats</div>
+          </div>
+          <div class="result-item coming-soon">
+            <div class="result-label">LP Rewards</div>
+            <div class="result-value" id="calc-lp-rewards">-</div>
+            <div class="result-sub"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <footer>
       <div class="update-time" id="update-time"></div>
@@ -876,6 +1176,101 @@
       if (countdown <= 0) countdown = 30;
       document.getElementById('last-block').textContent = countdown + 's';
     }, 1000);
+
+    // Strategy Calculator
+    let cachedTokenData = [];
+    const AIRDROP_PER_MOTOCAT = 1000; // MOTO per MotoCat (placeholder)
+
+    function getTokenBySymbol(symbol) {
+      return cachedTokenData.find(t => t.symbol?.toUpperCase() === symbol.toUpperCase());
+    }
+
+    function calculatePortfolio() {
+      const motoAmount = parseFloat(document.getElementById('calc-moto').value) || 0;
+      const motocatsAmount = parseInt(document.getElementById('calc-motocats').value) || 0;
+      const pillAmount = parseFloat(document.getElementById('calc-pill').value) || 0;
+
+      const motoToken = getTokenBySymbol('MOTO');
+      const pillToken = getTokenBySymbol('PILL');
+
+      // Portfolio Value
+      let portfolioValue = 0;
+      if (motoToken?.price) portfolioValue += motoAmount * motoToken.price;
+      if (pillToken?.price) portfolioValue += pillAmount * pillToken.price;
+
+      document.getElementById('calc-portfolio-value').textContent = formatPrice(portfolioValue) + ' sats';
+
+      // Show BTC equivalent for larger values
+      if (portfolioValue >= 100000) {
+        const btcValue = portfolioValue / 100000000;
+        document.getElementById('calc-portfolio-btc').textContent = btcValue.toFixed(6) + ' BTC';
+      } else {
+        document.getElementById('calc-portfolio-btc').textContent = '';
+      }
+
+      // % of Supply
+      let motoPercent = 0;
+      let pillPercent = 0;
+
+      if (motoToken?.totalSupply && motoAmount > 0) {
+        motoPercent = (motoAmount / motoToken.totalSupply) * 100;
+      }
+      if (pillToken?.totalSupply && pillAmount > 0) {
+        pillPercent = (pillAmount / pillToken.totalSupply) * 100;
+      }
+
+      const avgPercent = (motoPercent + pillPercent) / 2;
+      document.getElementById('calc-supply-percent').textContent =
+        avgPercent > 0 ? avgPercent.toFixed(4) + '%' : '0%';
+
+      document.getElementById('calc-supply-breakdown').innerHTML = `
+        <span class="supply-item"><span class="dot moto"></span> MOTO: ${motoPercent.toFixed(4)}%</span>
+        <span class="supply-item"><span class="dot pill"></span> PILL: ${pillPercent.toFixed(4)}%</span>
+      `;
+
+      // Expected Airdrops (based on MotoCats)
+      const expectedAirdrop = motocatsAmount * AIRDROP_PER_MOTOCAT;
+      document.getElementById('calc-airdrops').textContent =
+        expectedAirdrop > 0 ? formatSupply(expectedAirdrop) + ' MOTO' : '0 MOTO';
+    }
+
+    // Update cached token data when fetching
+    const originalFetchTokens = fetchTokens;
+    fetchTokens = async function() {
+      try {
+        const res = await fetch('/api/tokens');
+        const data = await res.json();
+
+        cachedTokenData = data.tokens;
+
+        document.getElementById('network').textContent = data.network;
+        document.getElementById('tokens').innerHTML = data.tokens.map(renderToken).join('');
+        document.getElementById('update-time').textContent =
+          'Last updated: ' + new Date(data.timestamp).toLocaleTimeString();
+
+        updateStats(data.tokens);
+        calculatePortfolio(); // Recalculate with new prices
+      } catch (error) {
+        document.getElementById('tokens').innerHTML =
+          `<div class="token-card error">
+            <div class="token-header">
+              <div class="token-info">
+                <div class="token-icon default">!</div>
+                <div>
+                  <div class="token-name">Connection Error</div>
+                  <div class="token-symbol">Failed to fetch</div>
+                </div>
+              </div>
+            </div>
+            <div class="error-message">${error.message}</div>
+          </div>`;
+      }
+    };
+
+    // Add event listeners for calculator inputs
+    document.getElementById('calc-moto').addEventListener('input', calculatePortfolio);
+    document.getElementById('calc-motocats').addEventListener('input', calculatePortfolio);
+    document.getElementById('calc-pill').addEventListener('input', calculatePortfolio);
   </script>
 </body>
 </html>
