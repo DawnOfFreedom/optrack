@@ -27,15 +27,17 @@ const sectionHeaderStyle: React.CSSProperties = {
   gap: '12px',
 };
 
-const scrollToSection = (id: string) => {
+const scrollToSection = (id: string, closeMenu?: () => void) => {
   const element = document.getElementById(id);
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  if (closeMenu) closeMenu();
 };
 
 export default function App() {
   const [btcPrice, setBtcPrice] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Shared Motocats state
   const [motocatsOwned, setMotocatsOwned] = useState('');
@@ -130,23 +132,17 @@ export default function App() {
           .mobile-hide {
             display: none !important;
           }
-          .mobile-stack {
-            flex-direction: column !important;
+          .mobile-show {
+            display: flex !important;
           }
-          .mobile-full {
-            width: 100% !important;
-          }
-          header > div {
-            flex-wrap: wrap;
-            gap: 12px;
-          }
-          header nav {
-            order: 3;
-            width: 100%;
-            justify-content: center;
+          .desktop-nav {
+            display: none !important;
           }
           .converter-widget {
             display: none !important;
+          }
+          section {
+            scroll-margin-top: 120px !important;
           }
         }
 
@@ -157,14 +153,74 @@ export default function App() {
           main {
             padding: 20px 12px !important;
           }
-          .nav-btn {
-            padding: 6px 10px !important;
-          }
+        }
+
+        .hamburger {
+          display: none;
+          flex-direction: column;
+          gap: 5px;
+          padding: 8px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 8px;
+          cursor: pointer;
+        }
+        .hamburger span {
+          width: 22px;
+          height: 2px;
+          background: #f7931a;
+          border-radius: 2px;
+          transition: all 0.3s ease;
+        }
+        .hamburger.open span:nth-child(1) {
+          transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger.open span:nth-child(2) {
+          opacity: 0;
+        }
+        .hamburger.open span:nth-child(3) {
+          transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .mobile-menu {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: rgba(10, 10, 15, 0.98);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          padding: 16px;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .mobile-menu.open {
+          display: flex;
+        }
+        .mobile-menu-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 8px;
+          color: #fff;
+          font-size: 0.9rem;
+          font-family: inherit;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .mobile-menu-item:hover {
+          background: rgba(247, 147, 26, 0.15);
+          border-color: rgba(247, 147, 26, 0.3);
+          color: #f7931a;
         }
 
         @media (max-width: 768px) {
-          section {
-            scroll-margin-top: 160px !important;
+          .hamburger {
+            display: flex;
           }
         }
 
@@ -252,8 +308,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Navigation */}
-          <nav style={{
+          {/* Desktop Navigation */}
+          <nav className="desktop-nav" style={{
             display: 'flex',
             gap: '4px',
             background: 'rgba(255,255,255,0.05)',
@@ -282,10 +338,35 @@ export default function App() {
                 }}
               >
                 <img src={section.image} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
-                <span className="mobile-hide">{section.label}</span>
+                <span>{section.label}</span>
               </button>
             ))}
           </nav>
+
+          {/* Hamburger Menu Button */}
+          <button
+            className={`hamburger ${menuOpen ? 'open' : ''}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
+          {sections.map(section => (
+            <button
+              key={section.id}
+              className="mobile-menu-item"
+              onClick={() => scrollToSection(section.id, () => setMenuOpen(false))}
+            >
+              <img src={section.image} alt="" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+              {section.label}
+            </button>
+          ))}
         </div>
       </header>
 
