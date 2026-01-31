@@ -42,18 +42,59 @@ const MARKET_CONDITIONS = {
   bull: { label: 'Bull', color: '#4ade80' },
 };
 
+// Staking scenarios based on real network data (% of 1B supply)
+const STAKING_SCENARIOS = {
+  veryLow: {
+    label: 'Very Low',
+    description: 'Early stage',
+    percentage: 10,
+    amount: 100_000_000,  // 100M
+    color: '#ef4444'
+  },
+  low: {
+    label: 'Low',
+    description: 'Like Ethereum (~28%)',
+    percentage: 25,
+    amount: 250_000_000,  // 250M
+    color: '#f97316'
+  },
+  medium: {
+    label: 'Medium',
+    description: 'Like Polkadot (~50%)',
+    percentage: 50,
+    amount: 500_000_000,  // 500M
+    color: '#888'
+  },
+  high: {
+    label: 'High',
+    description: 'Like Solana (~65%)',
+    percentage: 65,
+    amount: 650_000_000,  // 650M
+    color: '#22c55e'
+  },
+  veryHigh: {
+    label: 'Very High',
+    description: 'Like Aptos (~80%)',
+    percentage: 80,
+    amount: 800_000_000,  // 800M
+    color: '#4ade80'
+  }
+};
+
 type DexType = keyof typeof DEX_SCENARIOS;
 type MarketType = keyof typeof MARKET_CONDITIONS;
+type StakingType = keyof typeof STAKING_SCENARIOS;
 
 export default function YieldCalculator({ motoHoldings }: Props) {
   // Scenario selectors
   const [selectedDex, setSelectedDex] = useState<DexType>('sushiswap');
   const [selectedMarket, setSelectedMarket] = useState<MarketType>('neutral');
+  const [selectedStaking, setSelectedStaking] = useState<StakingType>('medium');
 
   // Yield inputs
   const [dailyVolume, setDailyVolume] = useState('30000000'); // Default to SushiSwap neutral
   const [feePercent, setFeePercent] = useState('0.2');
-  const [totalStaked, setTotalStaked] = useState('8500000');
+  const [totalStaked, setTotalStaked] = useState('500000000'); // Default to medium (50%)
   const [yourStaked, setYourStaked] = useState('');
   const [motoPrice, setMotoPrice] = useState('0.33');
 
@@ -62,11 +103,18 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   const [timePeriod, setTimePeriod] = useState('12'); // months
 
   // Update volume when scenario changes
-  const handleScenarioChange = (dex: DexType, market: MarketType) => {
+  const handleVolumeScenarioChange = (dex: DexType, market: MarketType) => {
     setSelectedDex(dex);
     setSelectedMarket(market);
     const volume = DEX_SCENARIOS[dex].volumes[market];
     setDailyVolume(volume.toString());
+  };
+
+  // Update staking when scenario changes
+  const handleStakingScenarioChange = (staking: StakingType) => {
+    setSelectedStaking(staking);
+    const amount = STAKING_SCENARIOS[staking].amount;
+    setTotalStaked(amount.toString());
   };
 
   const getDailyVolume = () => parseFloat(dailyVolume) || 0;
@@ -187,7 +235,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
               {(Object.keys(DEX_SCENARIOS) as DexType[]).map(dex => (
                 <button
                   key={dex}
-                  onClick={() => handleScenarioChange(dex, selectedMarket)}
+                  onClick={() => handleVolumeScenarioChange(dex, selectedMarket)}
                   style={{
                     padding: '8px 14px',
                     fontSize: '0.75rem',
@@ -216,7 +264,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
               {(Object.keys(MARKET_CONDITIONS) as MarketType[]).map(market => (
                 <button
                   key={market}
-                  onClick={() => handleScenarioChange(selectedDex, market)}
+                  onClick={() => handleVolumeScenarioChange(selectedDex, market)}
                   style={{
                     padding: '8px 14px',
                     fontSize: '0.75rem',
@@ -236,6 +284,57 @@ export default function YieldCalculator({ motoHoldings }: Props) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Staking Scenario Selector */}
+        <div style={{
+          background: 'rgba(255,255,255,0.02)',
+          borderRadius: '12px',
+          padding: '20px',
+          marginBottom: '24px',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '12px', display: 'block' }}>
+            STAKING RATIO SCENARIO (% of 1B supply staked)
+          </label>
+
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {(Object.keys(STAKING_SCENARIOS) as StakingType[]).map(staking => (
+              <button
+                key={staking}
+                onClick={() => handleStakingScenarioChange(staking)}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '0.7rem',
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                  background: selectedStaking === staking
+                    ? STAKING_SCENARIOS[staking].color
+                    : 'rgba(255,255,255,0.05)',
+                  color: selectedStaking === staking ? '#000' : '#888',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  minWidth: '80px'
+                }}
+              >
+                <span>{STAKING_SCENARIOS[staking].label}</span>
+                <span style={{
+                  fontSize: '0.6rem',
+                  opacity: selectedStaking === staking ? 0.8 : 0.6,
+                  marginTop: '2px'
+                }}>
+                  {STAKING_SCENARIOS[staking].percentage}%
+                </span>
+              </button>
+            ))}
+          </div>
+          <p style={{ fontSize: '0.6rem', color: '#555', margin: '8px 0 0' }}>
+            {STAKING_SCENARIOS[selectedStaking].description} → {formatNumber(STAKING_SCENARIOS[selectedStaking].amount)} MOTO staked
+          </p>
         </div>
 
         {/* Parameters Grid */}
