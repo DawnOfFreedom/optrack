@@ -61,6 +61,12 @@ const resources = [
         description: 'NFT dashboard & boosts',
       },
       {
+        url: 'https://magiceden.io/ordinals/marketplace/motocats',
+        image: '/ME.png',
+        name: 'Motocats on Magic Eden',
+        description: 'Buy & sell Motocats NFTs',
+      },
+      {
         url: 'https://ordinalnovus.com/cbrc-20/moto',
         icon: '📊',
         name: 'CBRC-20 MOTO',

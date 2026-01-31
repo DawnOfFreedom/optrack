@@ -3,12 +3,14 @@ import PortfolioTracker from './components/Portfolio/PortfolioTracker';
 import MotoConverter from './components/Portfolio/MotoConverter';
 import Motocats from './components/Motocats/Motocats';
 import YieldCalculator from './components/Yield/YieldCalculator';
+import BuyMoto from './components/BuyMoto/BuyMoto';
 import Resources from './components/Resources/Resources';
 
 const sections = [
   { id: 'portfolio', label: 'Portfolio Tracker', image: '/portfolio.svg' },
   { id: 'motocats', label: 'Motocats', image: '/motocat.png' },
   { id: 'yield', label: 'Yield Calculator', image: '/motochef.svg' },
+  { id: 'buymoto', label: 'Buy $MOTO', image: '/motoswap.svg' },
   { id: 'resources', label: 'Resources', image: '/resources.svg' },
 ];
 
@@ -275,6 +277,14 @@ export default function App() {
             <img src="/motochef.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Yield Calculator
           </h2>
           <YieldCalculator motoHoldings={motoHoldingsOp20} />
+        </section>
+
+        {/* Buy $MOTO Section */}
+        <section id="buymoto" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
+          <h2 style={sectionHeaderStyle}>
+            <img src="/motoswap.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Buy $MOTO
+          </h2>
+          <BuyMoto />
         </section>
 
         {/* Resources Section */}
