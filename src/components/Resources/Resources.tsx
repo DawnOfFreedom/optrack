@@ -3,12 +3,6 @@ const resources = [
     category: 'LEARN',
     items: [
       {
-        url: 'https://moto.fun',
-        icon: '📚',
-        name: 'Bitcoin DeFi Bible',
-        description: 'Education & documentation about OP_NET and Motoswap',
-      },
-      {
         url: 'https://opnet.org',
         image: '/opnet.svg',
         name: 'OP_NET',
@@ -21,10 +15,10 @@ const resources = [
         description: 'Documentation for developers',
       },
       {
-        url: 'https://orangepill.fun',
-        icon: '🟠',
-        name: 'OrangePill',
-        description: 'Bitcoin education & community',
+        url: 'https://moto.fun',
+        icon: '📚',
+        name: 'Bitcoin DeFi Bible',
+        description: 'Education & documentation about OP_NET and Motoswap',
       },
     ],
   },
@@ -38,6 +32,12 @@ const resources = [
         description: 'Token swaps & liquidity pools',
       },
       {
+        url: 'https://magiceden.io/ordinals/marketplace/motocats',
+        image: '/ME.png',
+        name: 'Motocats on Magic Eden',
+        description: 'Buy & sell Motocats NFTs',
+      },
+      {
         url: 'https://farm.motoswap.org',
         image: '/motochef.svg',
         name: 'MotoChef',
@@ -49,46 +49,34 @@ const resources = [
         name: 'Moto OTC',
         description: 'Telegram OTC trading group',
       },
+      {
+        url: 'https://orangepill.fun',
+        icon: '🟠',
+        name: 'OrangePill',
+        description: 'Bitcoin education & community',
+      },
     ],
   },
   {
     category: 'EXPLORE',
     items: [
       {
+        url: 'https://opscan.org',
+        image: '/opscan.png',
+        name: 'OP_SCAN',
+        description: 'Block explorer',
+      },
+      {
         url: 'https://garage.motoswap.org',
         image: '/motocat.png',
         name: 'Motocats Garage',
         description: 'NFT dashboard & boosts',
-      },
-      {
-        url: 'https://magiceden.io/ordinals/marketplace/motocats',
-        image: '/ME.png',
-        name: 'Motocats on Magic Eden',
-        description: 'Buy & sell Motocats NFTs',
-      },
-      {
-        url: 'https://ordinalnovus.com/cbrc-20/moto',
-        icon: '📊',
-        name: 'CBRC-20 MOTO',
-        description: 'Token info & OTC market',
       },
     ],
   },
   {
     category: 'TOOLS',
     items: [
-      {
-        url: 'https://opscan.org',
-        icon: '🔍',
-        name: 'OP_SCAN',
-        description: 'Block explorer',
-      },
-      {
-        url: 'https://cybord.motoswap.org',
-        icon: '🤖',
-        name: 'Cybord API',
-        description: 'Transfer verification',
-      },
       {
         url: 'https://faucet.opnet.org',
         icon: '🚰',
@@ -97,9 +85,9 @@ const resources = [
       },
       {
         url: 'https://opnet.org/portal',
-        icon: '🌐',
-        name: 'OP_NET Portal',
-        description: 'Dashboard & wallet connect',
+        image: '/odyssey.png',
+        name: 'Odyssey Portal',
+        description: 'Explore Bitcoin native DeFi & earn points',
       },
     ],
   },
@@ -151,7 +139,7 @@ export default function Resources() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
               gap: '12px',
             }}
           >

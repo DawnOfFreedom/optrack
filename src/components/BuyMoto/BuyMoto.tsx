@@ -96,7 +96,8 @@ export default function BuyMoto() {
             e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.4)';
           }}
         >
-          <img src="/ME.png" alt="Magic Eden" style={{ width: '32px', height: '32px' }} />
+          <img src="/motocat.png" alt="Motocats" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+          <img src="/ME.png" alt="Magic Eden" style={{ width: '24px', height: '24px' }} />
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: '0.7rem', color: '#888', marginBottom: '4px' }}>BUY MOTOCATS</div>
             <div style={{ fontSize: '1rem', color: '#a78bfa', fontWeight: 700 }}>Magic Eden</div>
