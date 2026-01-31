@@ -12,13 +12,18 @@ export default function PortfolioTracker() {
   const [holdingsOp20, setHoldingsOp20] = useState('');
   const [holdingsMotocats, setHoldingsMotocats] = useState('');
   const [holdingsPills, setHoldingsPills] = useState('');
-  const [motocatFloorSats, setMotocatFloorSats] = useState('344000'); // Floor in sats (0.00344 BTC)
 
-  // Portfolio state
-  const [invested, setInvested] = useState('');
-  const [priceSats, setPriceSats] = useState('1000'); // Price in sats for CBRC-20
+  // Price state
+  const [priceSats, setPriceSats] = useState('1000');
+  const [motocatFloorSats, setMotocatFloorSats] = useState('344000');
+
+  // Invested per token
+  const [investedMoto, setInvestedMoto] = useState('');
+  const [investedMotocats, setInvestedMotocats] = useState('');
+  const [investedPills, setInvestedPills] = useState('');
+
   const [selectedSupply, setSelectedSupply] = useState<'LOW' | 'MID' | 'HIGH'>('HIGH');
-  const [btcPrice, setBtcPrice] = useState<number>(100000); // BTC price in USD
+  const [btcPrice, setBtcPrice] = useState<number>(100000);
 
   // Fetch BTC price
   useEffect(() => {
@@ -43,7 +48,6 @@ export default function PortfolioTracker() {
         const res = await fetch('https://api-mainnet.magiceden.dev/v2/ord/btc/stat?collectionSymbol=motocats');
         const data = await res.json();
         if (data.floorPrice) {
-          // Magic Eden returns floor in BTC, convert to sats
           const floorSats = Math.round(data.floorPrice * 100_000_000);
           setMotocatFloorSats(floorSats.toString());
         }
@@ -52,7 +56,7 @@ export default function PortfolioTracker() {
       }
     };
     fetchMotocatFloor();
-    const interval = setInterval(fetchMotocatFloor, 60000); // Update every minute
+    const interval = setInterval(fetchMotocatFloor, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -76,12 +80,16 @@ export default function PortfolioTracker() {
     }
   };
 
-  const getInvested = () => parseFloat(invested) || 0;
+  // Getters
   const getSats = () => parseFloat(priceSats) || 0;
   const getHoldingsCbrc = () => parseFloat(holdingsCbrc) || 0;
   const getHoldingsOp20 = () => parseFloat(holdingsOp20) || 0;
   const getHoldingsMotocats = () => parseFloat(holdingsMotocats) || 0;
   const getMotocatFloorSats = () => parseFloat(motocatFloorSats) || 0;
+  const getInvestedMoto = () => parseFloat(investedMoto) || 0;
+  const getInvestedMotocats = () => parseFloat(investedMotocats) || 0;
+  const getInvestedPills = () => parseFloat(investedPills) || 0;
+  const getTotalInvested = () => getInvestedMoto() + getInvestedMotocats() + getInvestedPills();
 
   // Convert sats to USD prices
   const satToUsd = (sats: number) => (sats / 100_000_000) * btcPrice;
@@ -89,460 +97,306 @@ export default function PortfolioTracker() {
   const op20PriceUsd = cbrcPriceUsd / MOTO_CONSTANTS.CBRC_TO_OP20_RATIO;
   const motocatFloorUsd = satToUsd(getMotocatFloorSats());
 
-  // Calculate total holdings value
+  // Calculate values
   const cbrcValueUsd = getHoldingsCbrc() * cbrcPriceUsd;
   const op20ValueUsd = getHoldingsOp20() * op20PriceUsd;
-  const motocatsValueUsd = getHoldingsMotocats() * motocatFloorUsd;
   const totalMotoValueUsd = cbrcValueUsd + op20ValueUsd;
+  const motocatsValueUsd = getHoldingsMotocats() * motocatFloorUsd;
   const totalPortfolioValueUsd = totalMotoValueUsd + motocatsValueUsd;
+
+  // PNL calculations
+  const motoPnl = totalMotoValueUsd - getInvestedMoto();
+  const motoPnlPercent = getInvestedMoto() > 0 ? (motoPnl / getInvestedMoto()) * 100 : 0;
+  const motocatsPnl = motocatsValueUsd - getInvestedMotocats();
+  const motocatsPnlPercent = getInvestedMotocats() > 0 ? (motocatsPnl / getInvestedMotocats()) * 100 : 0;
+  const totalPnl = totalPortfolioValueUsd - getTotalInvested();
+  const totalPnlPercent = getTotalInvested() > 0 ? (totalPnl / getTotalInvested()) * 100 : 0;
 
   // Total OP20 equivalent for scenarios
   const totalOp20Equivalent = getHoldingsOp20() + cbrcToOp20(getHoldingsCbrc());
-
-  const pnlDollar = totalPortfolioValueUsd - getInvested();
-  const pnlPercent = getInvested() > 0 ? (pnlDollar / getInvested()) * 100 : 0;
-
   const circulatingSupply = MOTO_CONSTANTS.CIRCULATING_SUPPLY[selectedSupply];
 
+  const inputStyle = {
+    width: '100%',
+    padding: '8px 0',
+    fontSize: '1.1rem',
+    fontFamily: 'inherit',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '2px solid rgba(255,255,255,0.1)',
+    color: '#fff',
+    outline: 'none'
+  };
+
+  const smallInputStyle = {
+    ...inputStyle,
+    fontSize: '0.9rem',
+    width: '100px',
+    textAlign: 'right' as const
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      {/* MOTO Converter */}
-      <div style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(247, 147, 26, 0.2)',
-        borderRadius: '16px',
-        padding: '30px'
-      }}>
-        <h2 style={{ 
-          fontSize: '0.9rem', 
-          color: '#888', 
-          marginBottom: '20px',
-          fontWeight: 600,
-          letterSpacing: '1px'
-        }}>
-          MOTO CONVERTER
-        </h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
+      {/* My Holdings - Cards for each token */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+        {/* MOTO Card */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '20px',
-          flexWrap: 'wrap'
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(247, 147, 26, 0.3)',
+          borderRadius: '16px',
+          padding: '20px'
         }}>
-          {/* CBRC-20 Input */}
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.75rem',
-              color: '#f7931a',
-              marginBottom: '8px',
-              fontWeight: 600
-            }}>
-              CBRC-20 MOTO
-            </label>
-            <input
-              type="number"
-              value={cbrc}
-              onChange={(e) => handleCbrcChange(e.target.value)}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '14px 18px',
-                fontSize: '1.2rem',
-                fontFamily: 'inherit',
-                background: 'rgba(0,0,0,0.4)',
-                border: lastEdited === 'cbrc' ? '2px solid #f7931a' : '2px solid rgba(255,255,255,0.1)',
-                borderRadius: '10px',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.7rem', color: '#555', marginTop: '6px' }}>
-              Supply: 21,000,000
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <img src="/motoswap.svg" alt="MOTO" style={{ width: '48px', height: '48px' }} />
+              <div>
+                <h3 style={{ margin: 0, color: '#f7931a', fontSize: '1.2rem', fontWeight: 700 }}>$MOTO</h3>
+                <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>CBRC20 & OP20</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply:</span>
+              {(['LOW', 'MID', 'HIGH'] as const).map(key => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedSupply(key)}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '0.65rem',
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                    background: selectedSupply === key ? '#f7931a' : 'rgba(255,255,255,0.05)',
+                    color: selectedSupply === key ? '#000' : '#888',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {formatNumber(MOTO_CONSTANTS.CIRCULATING_SUPPLY[key])}
+                  {key === 'HIGH' && <span style={{ marginLeft: '2px', opacity: 0.7 }}>(max)</span>}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={{ fontSize: '1.5rem', color: '#f7931a' }}>⇄</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>CBRC20</label>
+                <input
+                  type="number"
+                  value={holdingsCbrc}
+                  onChange={(e) => {
+                    setHoldingsCbrc(e.target.value);
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) setHoldingsOp20(cbrcToOp20(val).toFixed(2));
+                    else setHoldingsOp20('');
+                  }}
+                  placeholder="0"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: '#4ade80' }}>OP20</label>
+                <input
+                  type="number"
+                  value={holdingsOp20}
+                  onChange={(e) => setHoldingsOp20(e.target.value)}
+                  placeholder="0"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>CBRC20 PRICE (SATS)</label>
+                <input
+                  type="number"
+                  value={priceSats}
+                  onChange={(e) => setPriceSats(e.target.value)}
+                  placeholder="1000"
+                  style={inputStyle}
+                />
+                <p style={{ fontSize: '1rem', color: '#f7931a', margin: '4px 0 0', fontWeight: 600 }}>
+                  {formatUSD(cbrcPriceUsd)}
+                </p>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: '#4ade80' }}>OP20 PRICE</label>
+                <p style={{ fontSize: '1rem', color: '#4ade80', margin: '8px 0 0', fontWeight: 600 }}>
+                  {formatUSD(op20PriceUsd)}
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '0.7rem', color: '#888' }}>$ INVESTED</label>
+                <input
+                  type="number"
+                  value={investedMoto}
+                  onChange={(e) => setInvestedMoto(e.target.value)}
+                  placeholder="0"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          </div>
 
-          {/* OP20 Input */}
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '0.75rem',
-              color: '#4ade80',
-              marginBottom: '8px',
-              fontWeight: 600
-            }}>
-              OP20 MOTO
-            </label>
-            <input
-              type="number"
-              value={op20}
-              onChange={(e) => handleOp20Change(e.target.value)}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '14px 18px',
-                fontSize: '1.2rem',
-                fontFamily: 'inherit',
-                background: 'rgba(0,0,0,0.4)',
-                border: lastEdited === 'op20' ? '2px solid #4ade80' : '2px solid rgba(255,255,255,0.1)',
-                borderRadius: '10px',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.7rem', color: '#555', marginTop: '6px' }}>
-              Supply: 1,000,000,000
-            </p>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ color: '#888', fontSize: '0.8rem' }}>
+              Value: <span style={{ color: '#f7931a', fontWeight: 600 }}>{formatUSD(totalMotoValueUsd)}</span>
+            </span>
+            <span style={{ fontSize: '0.8rem', color: motoPnl >= 0 ? '#4ade80' : '#ef4444' }}>
+              PNL: {formatUSD(motoPnl)} ({formatPercent(motoPnlPercent)})
+            </span>
           </div>
         </div>
 
+        {/* Motocats Card */}
         <div style={{
-          textAlign: 'center',
-          marginTop: '16px',
-          padding: '10px',
-          background: 'rgba(247, 147, 26, 0.1)',
-          borderRadius: '8px',
-          fontSize: '0.8rem'
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(167, 139, 250, 0.3)',
+          borderRadius: '16px',
+          padding: '20px'
         }}>
-          <span style={{ color: '#888' }}>Ratio: </span>
-          <span style={{ color: '#f7931a', fontWeight: 600 }}>1 CBRC-20 = 47.619 OP20</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <img src="/motocat.png" alt="Motocats" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />
+              <div>
+                <h3 style={{ margin: 0, color: '#a78bfa', fontSize: '1.2rem', fontWeight: 700 }}>MOTOCATS</h3>
+                <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>NFT Collection</p>
+              </div>
+            </div>
+            <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 10,000</span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ fontSize: '0.7rem', color: '#a78bfa' }}>AMOUNT</label>
+              <input
+                type="number"
+                value={holdingsMotocats}
+                onChange={(e) => setHoldingsMotocats(e.target.value)}
+                placeholder="0"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', color: '#888' }}>FLOOR (SATS)</label>
+              <input
+                type="number"
+                value={motocatFloorSats}
+                onChange={(e) => setMotocatFloorSats(e.target.value)}
+                placeholder="344000"
+                style={inputStyle}
+              />
+              <p style={{ fontSize: '0.65rem', color: '#555', margin: '4px 0 0' }}>
+                = {(getMotocatFloorSats() / 100_000_000).toFixed(4)} BTC / {formatUSD(motocatFloorUsd)}
+              </p>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', color: '#888' }}>$ INVESTED</label>
+              <input
+                type="number"
+                value={investedMotocats}
+                onChange={(e) => setInvestedMotocats(e.target.value)}
+                placeholder="0"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ color: '#888', fontSize: '0.8rem' }}>
+              Value: <span style={{ color: '#a78bfa', fontWeight: 600 }}>{formatUSD(motocatsValueUsd)}</span>
+            </span>
+            <span style={{ fontSize: '0.8rem', color: motocatsPnl >= 0 ? '#4ade80' : '#ef4444' }}>
+              PNL: {formatUSD(motocatsPnl)} ({formatPercent(motocatsPnlPercent)})
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* My Holdings */}
-      <div style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(74, 222, 128, 0.2)',
-        borderRadius: '16px',
-        padding: '30px'
-      }}>
-        <h2 style={{
-          fontSize: '0.9rem',
-          color: '#4ade80',
-          marginBottom: '20px',
-          fontWeight: 600,
-          letterSpacing: '1px'
-        }}>
-          MY HOLDINGS
-        </h2>
-
+        {/* Pills Card */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '20px'
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(244, 114, 182, 0.3)',
+          borderRadius: '16px',
+          padding: '20px'
         }}>
-          {/* CBRC-20 Holdings */}
-          <div>
-            <label style={{ fontSize: '0.75rem', color: '#f7931a', fontWeight: 600 }}>
-              CBRC-20 MOTO
-            </label>
-            <input
-              type="number"
-              value={holdingsCbrc}
-              onChange={(e) => {
-                setHoldingsCbrc(e.target.value);
-                const val = parseFloat(e.target.value);
-                if (!isNaN(val)) {
-                  setHoldingsOp20(cbrcToOp20(val).toFixed(2));
-                } else {
-                  setHoldingsOp20('');
-                }
-              }}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.3rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(247, 147, 26, 0.3)',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              Value: <span style={{ color: '#f7931a' }}>{formatUSD(cbrcValueUsd)}</span>
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <img src="/Orangepill.png" alt="Pills" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} />
+              <div>
+                <h3 style={{ margin: 0, color: '#f472b6', fontSize: '1.2rem', fontWeight: 700 }}>$PILL</h3>
+                <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>OrangePill Token</p>
+              </div>
+            </div>
+            <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 1,000,000,000,000</span>
           </div>
 
-          {/* OP20 Holdings */}
-          <div>
-            <label style={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 600 }}>
-              OP20 MOTO
-            </label>
-            <input
-              type="number"
-              value={holdingsOp20}
-              onChange={(e) => setHoldingsOp20(e.target.value)}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.3rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(74, 222, 128, 0.3)',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              Value: <span style={{ color: '#4ade80' }}>{formatUSD(op20ValueUsd)}</span>
-            </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ fontSize: '0.7rem', color: '#f472b6' }}>AMOUNT</label>
+              <input
+                type="number"
+                value={holdingsPills}
+                onChange={(e) => setHoldingsPills(e.target.value)}
+                placeholder="0"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', color: '#888' }}>PRICE</label>
+              <p style={{ fontSize: '1.1rem', color: '#f472b6', fontStyle: 'italic', margin: '8px 0' }}>soon™</p>
+            </div>
+            <div>
+              <label style={{ fontSize: '0.7rem', color: '#888' }}>$ INVESTED</label>
+              <input
+                type="number"
+                value={investedPills}
+                onChange={(e) => setInvestedPills(e.target.value)}
+                placeholder="0"
+                style={inputStyle}
+              />
+            </div>
           </div>
 
-          {/* Motocats Holdings */}
-          <div>
-            <label style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600 }}>
-              MOTOCATS
-            </label>
-            <input
-              type="number"
-              value={holdingsMotocats}
-              onChange={(e) => setHoldingsMotocats(e.target.value)}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.3rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(167, 139, 250, 0.3)',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              Value: <span style={{ color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
-            </p>
-          </div>
-
-          {/* Motocat Floor Price */}
-          <div>
-            <label style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600 }}>
-              MOTOCAT FLOOR (SATS)
-            </label>
-            <input
-              type="number"
-              value={motocatFloorSats}
-              onChange={(e) => setMotocatFloorSats(e.target.value)}
-              placeholder="344000"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.3rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(167, 139, 250, 0.3)',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              = <span style={{ color: '#a78bfa' }}>{(getMotocatFloorSats() / 100_000_000).toFixed(4)} BTC</span>
-              {' '}/ <span style={{ color: '#a78bfa' }}>{formatUSD(motocatFloorUsd)}</span>
-            </p>
-          </div>
-
-          {/* Pills Holdings */}
-          <div>
-            <label style={{ fontSize: '0.75rem', color: '#f472b6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <img src="/Orangepill.png" alt="Pills" style={{ width: '18px', height: '18px' }} />
-              PILLS
-            </label>
-            <input
-              type="number"
-              value={holdingsPills}
-              onChange={(e) => setHoldingsPills(e.target.value)}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.3rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(244, 114, 182, 0.3)',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#888', fontSize: '0.8rem' }}>
               Value: <span style={{ color: '#f472b6', fontStyle: 'italic' }}>soon™</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Total Holdings Value */}
-        <div style={{
-          marginTop: '20px',
-          padding: '16px',
-          background: 'rgba(74, 222, 128, 0.1)',
-          borderRadius: '10px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: '#888' }}>MOTO Total: </span>
-            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>{formatUSD(totalMotoValueUsd)}</span>
-          </div>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: '#888' }}>Motocats Total: </span>
-            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
-          </div>
-          <div>
-            <span style={{ fontSize: '0.75rem', color: '#4ade80' }}>PORTFOLIO TOTAAL: </span>
-            <span style={{ fontSize: '1.3rem', fontWeight: 700, color: '#4ade80' }}>{formatUSD(totalPortfolioValueUsd)}</span>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Current Value & Investment */}
+      {/* Portfolio Total */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '20px'
-      }}>
-        {/* Investment Input */}
-        <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '16px',
-          padding: '24px'
-        }}>
-          <label style={{ fontSize: '0.75rem', color: '#888', fontWeight: 600 }}>
-            $ INVESTED
-          </label>
-          <input
-            type="number"
-            value={invested}
-            onChange={(e) => setInvested(e.target.value)}
-            placeholder="0"
-            style={{
-              width: '100%',
-              padding: '12px 0',
-              fontSize: '1.5rem',
-              fontFamily: 'inherit',
-              background: 'transparent',
-              border: 'none',
-              borderBottom: '2px solid rgba(255,255,255,0.1)',
-              color: '#fff',
-              outline: 'none'
-            }}
-          />
-        </div>
-
-        {/* Current Price Input (Sats) */}
-        <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(247, 147, 26, 0.2)',
-          borderRadius: '16px',
-          padding: '24px'
-        }}>
-          <label style={{ fontSize: '0.75rem', color: '#f7931a', fontWeight: 600 }}>
-            CBRC-20 PRICE (SATS)
-          </label>
-          <input
-            type="number"
-            value={priceSats}
-            onChange={(e) => setPriceSats(e.target.value)}
-            placeholder="1000"
-            style={{
-              width: '100%',
-              padding: '12px 0',
-              fontSize: '1.5rem',
-              fontFamily: 'inherit',
-              background: 'transparent',
-              border: 'none',
-              borderBottom: '2px solid rgba(247, 147, 26, 0.3)',
-              color: '#fff',
-              outline: 'none'
-            }}
-          />
-          <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#888' }}>
-            <div>CBRC-20: <span style={{ color: '#f7931a' }}>${cbrcPriceUsd.toFixed(2)}</span></div>
-            <div>OP20: <span style={{ color: '#4ade80' }}>${op20PriceUsd.toFixed(4)}</span></div>
-          </div>
-        </div>
-
-        {/* Current Value */}
-        <div style={{
-          background: 'rgba(74, 222, 128, 0.1)',
-          border: '1px solid rgba(74, 222, 128, 0.2)',
-          borderRadius: '16px',
-          padding: '24px'
-        }}>
-          <label style={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 600 }}>
-            PORTFOLIO VALUE
-          </label>
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginTop: '8px' }}>
-            {formatUSD(totalPortfolioValueUsd)}
-          </div>
-        </div>
-
-        {/* PNL */}
-        <div style={{
-          background: pnlDollar >= 0 ? 'rgba(74, 222, 128, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          border: `1px solid ${pnlDollar >= 0 ? 'rgba(74, 222, 128, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
-          borderRadius: '16px',
-          padding: '24px'
-        }}>
-          <label style={{ 
-            fontSize: '0.75rem', 
-            color: pnlDollar >= 0 ? '#4ade80' : '#ef4444', 
-            fontWeight: 600 
-          }}>
-            PNL
-          </label>
-          <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 700, 
-            color: pnlDollar >= 0 ? '#4ade80' : '#ef4444',
-            marginTop: '8px'
-          }}>
-            {formatUSD(pnlDollar)} ({formatPercent(pnlPercent)})
-          </div>
-        </div>
-      </div>
-
-      {/* Supply Selector */}
-      <div style={{
+        background: 'rgba(74, 222, 128, 0.1)',
+        border: '1px solid rgba(74, 222, 128, 0.3)',
+        borderRadius: '16px',
+        padding: '20px',
         display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '12px',
-        justifyContent: 'flex-end'
+        flexWrap: 'wrap',
+        gap: '16px'
       }}>
-        <span style={{ fontSize: '0.8rem', color: '#666' }}>Circulating Supply:</span>
-        {(['LOW', 'MID', 'HIGH'] as const).map(key => (
-          <button
-            key={key}
-            onClick={() => setSelectedSupply(key)}
-            style={{
-              padding: '8px 16px',
-              fontSize: '0.75rem',
-              fontFamily: 'inherit',
-              fontWeight: 600,
-              background: selectedSupply === key ? '#f7931a' : 'rgba(255,255,255,0.05)',
-              color: selectedSupply === key ? '#000' : '#888',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            {formatNumber(MOTO_CONSTANTS.CIRCULATING_SUPPLY[key])}
-            {key === 'HIGH' && <span style={{ marginLeft: '4px', opacity: 0.7 }}>(max)</span>}
-          </button>
-        ))}
+        <div>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>TOTAL INVESTED</p>
+          <p style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: '#fff' }}>{formatUSD(getTotalInvested())}</p>
+        </div>
+        <div>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>PORTFOLIO VALUE</p>
+          <p style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: '#4ade80' }}>{formatUSD(totalPortfolioValueUsd)}</p>
+        </div>
+        <div>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>TOTAL PNL</p>
+          <p style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: totalPnl >= 0 ? '#4ade80' : '#ef4444' }}>
+            {formatUSD(totalPnl)} ({formatPercent(totalPnlPercent)})
+          </p>
+        </div>
       </div>
 
       {/* Scenarios Table */}
@@ -563,7 +417,6 @@ export default function PortfolioTracker() {
         </div>
 
         <div style={{ padding: '10px' }}>
-          {/* Header */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
@@ -584,30 +437,22 @@ export default function PortfolioTracker() {
           {(() => {
             const currentMcap = op20PriceUsd * circulatingSupply;
             return (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
-                  padding: '14px 20px',
-                  alignItems: 'center',
-                  background: 'rgba(74, 222, 128, 0.15)',
-                  borderBottom: '2px solid rgba(74, 222, 128, 0.3)'
-                }}
-              >
-                <div style={{ fontWeight: 700, color: '#4ade80', fontSize: '1rem' }}>
-                  {formatUSD(currentMcap)}
-                </div>
-                <div style={{ color: '#4ade80', fontSize: '0.85rem' }}>
-                  Current
-                </div>
-                <div style={{ color: '#4ade80', fontWeight: 500 }}>
-                  ${op20PriceUsd.toFixed(op20PriceUsd < 1 ? 4 : 2)}
-                </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
+                padding: '14px 20px',
+                alignItems: 'center',
+                background: 'rgba(74, 222, 128, 0.15)',
+                borderBottom: '2px solid rgba(74, 222, 128, 0.3)'
+              }}>
+                <div style={{ fontWeight: 700, color: '#4ade80', fontSize: '1rem' }}>{formatUSD(currentMcap)}</div>
+                <div style={{ color: '#4ade80', fontSize: '0.85rem' }}>Current</div>
+                <div style={{ color: '#4ade80', fontWeight: 500 }}>${op20PriceUsd.toFixed(op20PriceUsd < 1 ? 4 : 2)}</div>
                 <div style={{ textAlign: 'right', fontWeight: 700, fontSize: '1rem', color: '#4ade80' }}>
                   {totalPortfolioValueUsd > 0 ? formatUSD(totalPortfolioValueUsd) : '—'}
                 </div>
-                <div style={{ textAlign: 'right', fontWeight: 600, color: pnlPercent >= 0 ? '#4ade80' : '#ef4444' }}>
-                  {getInvested() > 0 && totalPortfolioValueUsd > 0 ? formatPercent(pnlPercent) : '—'}
+                <div style={{ textAlign: 'right', fontWeight: 600, color: totalPnlPercent >= 0 ? '#4ade80' : '#ef4444' }}>
+                  {getTotalInvested() > 0 && totalPortfolioValueUsd > 0 ? formatPercent(totalPnlPercent) : '—'}
                 </div>
               </div>
             );
@@ -617,8 +462,8 @@ export default function PortfolioTracker() {
           {MOTO_CONSTANTS.SCENARIOS.map((scenario, idx) => {
             const price = calculatePrice(scenario.mcap, circulatingSupply);
             const motoValue = totalOp20Equivalent * price;
-            const totalValue = motoValue + motocatsValueUsd; // Include Motocats at current value
-            const scenarioPnl = getInvested() > 0 ? ((totalValue - getInvested()) / getInvested()) * 100 : 0;
+            const totalValue = motoValue + motocatsValueUsd;
+            const scenarioPnl = getTotalInvested() > 0 ? ((totalValue - getTotalInvested()) / getTotalInvested()) * 100 : 0;
             const isHighlight = scenario.mcap === 1_000_000_000;
 
             return (
@@ -630,42 +475,60 @@ export default function PortfolioTracker() {
                   padding: '14px 20px',
                   alignItems: 'center',
                   background: isHighlight ? 'rgba(247, 147, 26, 0.1)' : 'transparent',
-                  borderBottom: idx < MOTO_CONSTANTS.SCENARIOS.length - 1 
-                    ? '1px solid rgba(255,255,255,0.05)' 
-                    : 'none'
+                  borderBottom: idx < MOTO_CONSTANTS.SCENARIOS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
                 }}
               >
-                <div style={{
-                  fontWeight: 700,
-                  color: isHighlight ? '#f7931a' : '#fff',
-                  fontSize: '1rem'
-                }}>
-                  {scenario.label}
-                </div>
-                <div style={{ color: '#666', fontSize: '0.85rem' }}>
-                  {scenario.type}
-                </div>
-                <div style={{ color: '#4ade80', fontWeight: 500 }}>
-                  ${price.toFixed(price < 1 ? 3 : 2)}
-                </div>
-                <div style={{
-                  textAlign: 'right',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  color: totalValue > 0 ? '#fff' : '#444'
-                }}>
+                <div style={{ fontWeight: 700, color: isHighlight ? '#f7931a' : '#fff', fontSize: '1rem' }}>{scenario.label}</div>
+                <div style={{ color: '#666', fontSize: '0.85rem' }}>{scenario.type}</div>
+                <div style={{ color: '#4ade80', fontWeight: 500 }}>${price.toFixed(price < 1 ? 3 : 2)}</div>
+                <div style={{ textAlign: 'right', fontWeight: 700, fontSize: '1rem', color: totalValue > 0 ? '#fff' : '#444' }}>
                   {totalValue > 0 ? formatUSD(totalValue) : '—'}
                 </div>
-                <div style={{
-                  textAlign: 'right',
-                  fontWeight: 600,
-                  color: scenarioPnl > 0 ? '#4ade80' : '#666'
-                }}>
-                  {getInvested() > 0 && totalValue > 0 ? formatPercent(scenarioPnl) : '—'}
+                <div style={{ textAlign: 'right', fontWeight: 600, color: scenarioPnl > 0 ? '#4ade80' : '#666' }}>
+                  {getTotalInvested() > 0 && totalValue > 0 ? formatPercent(scenarioPnl) : '—'}
                 </div>
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* MOTO Converter - Compact, right aligned */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          maxWidth: '400px'
+        }}>
+          <p style={{ fontSize: '0.7rem', color: '#666', margin: '0 0 12px', fontWeight: 600 }}>MOTO CONVERTER</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.65rem', color: '#f7931a' }}>CBRC20</label>
+              <input
+                type="number"
+                value={cbrc}
+                onChange={(e) => handleCbrcChange(e.target.value)}
+                placeholder="0"
+                style={{ ...inputStyle, fontSize: '0.95rem', padding: '6px 0' }}
+              />
+            </div>
+            <span style={{ color: '#666', fontSize: '1rem' }}>⇄</span>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.65rem', color: '#4ade80' }}>OP20</label>
+              <input
+                type="number"
+                value={op20}
+                onChange={(e) => handleOp20Change(e.target.value)}
+                placeholder="0"
+                style={{ ...inputStyle, fontSize: '0.95rem', padding: '6px 0' }}
+              />
+            </div>
+          </div>
+          <p style={{ fontSize: '0.65rem', color: '#555', margin: '8px 0 0', textAlign: 'center' }}>
+            1 CBRC20 = 47.619 OP20
+          </p>
         </div>
       </div>
     </div>
