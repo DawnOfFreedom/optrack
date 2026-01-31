@@ -1,0 +1,192 @@
+import PortfolioTracker from './components/Portfolio/PortfolioTracker';
+import Motocats from './components/Motocats/Motocats';
+import YieldCalculator from './components/Yield/YieldCalculator';
+import Resources from './components/Resources/Resources';
+
+const sections = [
+  { id: 'portfolio', label: 'Portfolio Tracker', icon: '📊' },
+  { id: 'motocats', label: 'Motocats', icon: '🐱' },
+  { id: 'yield', label: 'Yield Calculator', icon: '💰' },
+  { id: 'resources', label: 'Resources', icon: '🔗' },
+];
+
+const sectionHeaderStyle: React.CSSProperties = {
+  fontFamily: "'Orbitron', sans-serif",
+  fontSize: '1.5rem',
+  fontWeight: 700,
+  color: '#f7931a',
+  marginBottom: '24px',
+  paddingBottom: '12px',
+  borderBottom: '2px solid rgba(247, 147, 26, 0.3)',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px',
+};
+
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+
+export default function App() {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%)',
+      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+      color: '#e0e0e0'
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap');
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
+        .nav-btn:hover {
+          background: rgba(247, 147, 26, 0.2) !important;
+          color: #f7931a !important;
+        }
+      `}</style>
+
+      {/* Sticky Header */}
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        padding: '16px 40px',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(10, 10, 15, 0.95)',
+        backdropFilter: 'blur(10px)',
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <img
+              src="/logo-round.png"
+              alt="OPtrack Logo"
+              style={{ width: '36px', height: '36px' }}
+            />
+            <h1 style={{
+              fontFamily: "'Orbitron', sans-serif",
+              fontSize: '1.5rem',
+              fontWeight: 900,
+              background: 'linear-gradient(90deg, #f7931a, #ffab40)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              margin: 0,
+              letterSpacing: '2px'
+            }}>
+              OPtrack
+            </h1>
+          </div>
+
+          {/* Navigation */}
+          <nav style={{
+            display: 'flex',
+            gap: '4px',
+            background: 'rgba(255,255,255,0.05)',
+            padding: '4px',
+            borderRadius: '12px'
+          }}>
+            {sections.map(section => (
+              <button
+                key={section.id}
+                className="nav-btn"
+                onClick={() => scrollToSection(section.id)}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '0.8rem',
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                  background: 'transparent',
+                  color: '#888',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span>{section.icon}</span>
+                <span>{section.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content - All sections */}
+      <main style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '40px 20px'
+      }}>
+        {/* Portfolio Tracker Section */}
+        <section id="portfolio" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
+          <h2 style={sectionHeaderStyle}>
+            <span>📊</span> Portfolio Tracker
+          </h2>
+          <PortfolioTracker />
+        </section>
+
+        {/* Motocats Section */}
+        <section id="motocats" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
+          <h2 style={sectionHeaderStyle}>
+            <span>🐱</span> Motocats
+          </h2>
+          <Motocats />
+        </section>
+
+        {/* Yield Calculator Section */}
+        <section id="yield" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
+          <h2 style={sectionHeaderStyle}>
+            <span>💰</span> Yield Calculator
+          </h2>
+          <YieldCalculator />
+        </section>
+
+        {/* Resources Section */}
+        <section id="resources" style={{ marginBottom: '40px', scrollMarginTop: '100px' }}>
+          <h2 style={sectionHeaderStyle}>
+            <span>🔗</span> Resources
+          </h2>
+          <Resources />
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer style={{
+        textAlign: 'center',
+        padding: '20px',
+        color: '#444',
+        fontSize: '0.75rem',
+        borderTop: '1px solid rgba(255,255,255,0.05)'
+      }}>
+        OPtrack • MOTO Portfolio Tracker • Not Financial Advice
+      </footer>
+    </div>
+  );
+}

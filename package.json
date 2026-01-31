@@ -1,27 +1,25 @@
 {
   "name": "optrack",
   "version": "0.1.0",
-  "description": "OP_NET token price tracker",
+  "description": "MOTO Portfolio Tracker",
   "type": "module",
-  "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "server": "node src/server.js",
-    "monitor": "node src/monitor.js",
-    "test-telegram": "node src/test-telegram.js",
-    "get-chat-id": "node src/get-chat-id.js"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "bot:start": "node src/index.js",
+    "bot:server": "node src/server.js",
+    "bot:monitor": "node src/monitor.js"
   },
-  "keywords": [
-    "opnet",
-    "bitcoin",
-    "token",
-    "tracker"
-  ],
-  "license": "MIT",
   "dependencies": {
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "form-data": "^4.0.5",
-    "opnet": "^1.0.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
   }
 }
