@@ -98,10 +98,6 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   const [yourStaked, setYourStaked] = useState('');
   const [motoPrice, setMotoPrice] = useState('0.33');
 
-  // Compound settings
-  const [compoundFreq, setCompoundFreq] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [timePeriod, setTimePeriod] = useState('12'); // months
-
   // Update volume when scenario changes
   const handleVolumeScenarioChange = (dex: DexType, market: MarketType) => {
     setSelectedDex(dex);
@@ -122,7 +118,6 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   const getTotalStaked = () => parseFloat(totalStaked) || 1;
   const getYourStaked = () => parseFloat(yourStaked) || 0;
   const getMotoPrice = () => parseFloat(motoPrice) || 0;
-  const getTimePeriod = () => parseFloat(timePeriod) || 12;
   const getMotoHoldings = () => parseFloat(motoHoldings) || 0;
 
   // Calculations
@@ -135,14 +130,6 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   const monthlyUSD = yourDailyUSD * 30;
   const yearlyUSD = yourDailyUSD * 365;
   const simpleAPY = getYourStaked() > 0 ? (yearlyUSD / (getYourStaked() * getMotoPrice())) * 100 : 0;
-
-  // Compound interest calculation
-  const principal = getYourStaked() * getMotoPrice();
-  const rate = simpleAPY / 100;
-  const compoundsPerYear = compoundFreq === 'daily' ? 365 : compoundFreq === 'weekly' ? 52 : 12;
-  const years = getTimePeriod() / 12;
-  const compoundValue = principal * Math.pow(1 + rate / compoundsPerYear, compoundsPerYear * years);
-  const compoundGain = compoundValue - principal;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -522,162 +509,41 @@ export default function YieldCalculator({ motoHoldings }: Props) {
         </div>
       </div>
 
-      {/* Compound Calculator */}
+      {/* Compound / Slashing Fee Calculator - Coming Soon */}
       <div style={{
         background: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(247, 147, 26, 0.2)',
         borderRadius: '16px',
-        padding: '30px'
+        padding: '20px'
       }}>
-        <h2 style={{
-          fontSize: '0.9rem',
-          color: '#f7931a',
-          marginBottom: '24px',
-          fontWeight: 600,
-          letterSpacing: '1px',
+        <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <span>🔄 COMPOUND CALCULATOR</span>
-          <a
-            href="https://www.thecalculatorsite.com/finance/calculators/compoundinterestcalculator.php"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: '0.7rem',
-              color: '#888',
-              textDecoration: 'none'
-            }}
-          >
-            Advanced Calculator ↗
-          </a>
-        </h2>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '20px',
-          marginBottom: '24px'
-        }}>
-          {/* Compound Frequency */}
-          <div>
-            <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
-              COMPOUND FREQUENCY
-            </label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {(['daily', 'weekly', 'monthly'] as const).map(freq => (
-                <button
-                  key={freq}
-                  onClick={() => setCompoundFreq(freq)}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    fontSize: '0.75rem',
-                    fontFamily: 'inherit',
-                    fontWeight: 600,
-                    background: compoundFreq === freq ? '#f7931a' : 'rgba(255,255,255,0.05)',
-                    color: compoundFreq === freq ? '#000' : '#888',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    textTransform: 'capitalize'
-                  }}
-                >
-                  {freq}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Time Period */}
-          <div>
-            <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>
-              TIME PERIOD (MONTHS)
-            </label>
-            <input
-              type="text"
-              value={formatInputNumber(timePeriod)}
-              onChange={(e) => setTimePeriod(parseInputNumber(e.target.value))}
-              placeholder="12"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.2rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(255,255,255,0.1)',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-          </div>
-
-          {/* Principal */}
-          <div>
-            <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>
-              PRINCIPAL (USD)
-            </label>
-            <div style={{
-              padding: '12px 0',
-              fontSize: '1.2rem',
-              fontWeight: 600,
-              color: '#fff'
-            }}>
-              {formatUSD(principal)}
-            </div>
-          </div>
-        </div>
-
-        {/* Compound Results */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '16px'
-        }}>
-          <div style={{
-            padding: '20px',
-            background: 'rgba(255,255,255,0.03)',
-            borderRadius: '10px',
-            textAlign: 'center'
+          <h2 style={{
+            fontSize: '0.9rem',
+            color: '#f7931a',
+            fontWeight: 600,
+            letterSpacing: '1px',
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '8px' }}>
-              STARTING VALUE
-            </div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 600, color: '#fff' }}>
-              {formatUSD(principal)}
-            </div>
-          </div>
-
-          <div style={{
-            padding: '20px',
-            background: 'rgba(74, 222, 128, 0.1)',
-            borderRadius: '10px',
-            textAlign: 'center'
+            🔄 COMPOUND / SLASHING FEE CALCULATOR
+          </h2>
+          <span style={{
+            background: 'rgba(247, 147, 26, 0.2)',
+            color: '#f7931a',
+            padding: '4px 10px',
+            borderRadius: '4px',
+            fontSize: '0.65rem',
+            fontWeight: 600,
+            letterSpacing: '1px'
           }}>
-            <div style={{ fontSize: '0.7rem', color: '#4ade80', marginBottom: '8px' }}>
-              COMPOUND GAIN
-            </div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#4ade80' }}>
-              +{formatUSD(compoundGain)}
-            </div>
-          </div>
-
-          <div style={{
-            padding: '20px',
-            background: 'linear-gradient(135deg, rgba(247, 147, 26, 0.15), rgba(247, 147, 26, 0.05))',
-            borderRadius: '10px',
-            border: '1px solid rgba(247, 147, 26, 0.3)',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '0.7rem', color: '#f7931a', marginBottom: '8px' }}>
-              FINAL VALUE ({getTimePeriod()}M)
-            </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f7931a' }}>
-              {formatUSD(compoundValue)}
-            </div>
-          </div>
+            COMING SOON
+          </span>
         </div>
       </div>
 
