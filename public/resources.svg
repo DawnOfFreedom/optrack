@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="resourcesGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f7931a"/>
+      <stop offset="100%" style="stop-color:#ffab40"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#0a0a0f"/>
+  <circle cx="50" cy="50" r="46" fill="none" stroke="url(#resourcesGrad)" stroke-width="2"/>
+
+  <!-- Chain link 1 -->
+  <rect x="22" y="35" width="24" height="30" rx="10" fill="none" stroke="url(#resourcesGrad)" stroke-width="6"/>
+
+  <!-- Chain link 2 -->
+  <rect x="54" y="35" width="24" height="30" rx="10" fill="none" stroke="url(#resourcesGrad)" stroke-width="6"/>
+
+  <!-- Connection -->
+  <line x1="46" y1="50" x2="54" y2="50" stroke="url(#resourcesGrad)" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -4,10 +4,10 @@ import YieldCalculator from './components/Yield/YieldCalculator';
 import Resources from './components/Resources/Resources';
 
 const sections = [
-  { id: 'portfolio', label: 'Portfolio Tracker', icon: '📊' },
+  { id: 'portfolio', label: 'Portfolio Tracker', icon: '📊', image: '/portfolio.svg' },
   { id: 'motocats', label: 'Motocats', icon: '🐱', image: '/motocat.png' },
-  { id: 'yield', label: 'Yield Calculator', icon: '💰' },
-  { id: 'resources', label: 'Resources', icon: '🔗' },
+  { id: 'yield', label: 'Yield Calculator', icon: '💰', image: '/motochef.svg' },
+  { id: 'resources', label: 'Resources', icon: '🔗', image: '/resources.svg' },
 ];
 
 const sectionHeaderStyle: React.CSSProperties = {
@@ -83,7 +83,7 @@ export default function App() {
             gap: '12px'
           }}>
             <img
-              src="/logo-round.png"
+              src="/logo-round.svg"
               alt="OPtrack Logo"
               style={{ width: '36px', height: '36px' }}
             />
@@ -151,7 +151,7 @@ export default function App() {
         {/* Portfolio Tracker Section */}
         <section id="portfolio" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
           <h2 style={sectionHeaderStyle}>
-            <span>📊</span> Portfolio Tracker
+            <img src="/portfolio.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Portfolio Tracker
           </h2>
           <PortfolioTracker />
         </section>
@@ -167,7 +167,7 @@ export default function App() {
         {/* Yield Calculator Section */}
         <section id="yield" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
           <h2 style={sectionHeaderStyle}>
-            <span>💰</span> Yield Calculator
+            <img src="/motochef.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Yield Calculator
           </h2>
           <YieldCalculator />
         </section>
@@ -175,7 +175,7 @@ export default function App() {
         {/* Resources Section */}
         <section id="resources" style={{ marginBottom: '40px', scrollMarginTop: '100px' }}>
           <h2 style={sectionHeaderStyle}>
-            <span>🔗</span> Resources
+            <img src="/resources.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Resources
           </h2>
           <Resources />
         </section>
