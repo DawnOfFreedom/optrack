@@ -162,6 +162,12 @@ export default function App() {
           }
         }
 
+        @media (max-width: 768px) {
+          section {
+            scroll-margin-top: 160px !important;
+          }
+        }
+
         .nav-btn:hover {
           background: rgba(247, 147, 26, 0.2) !important;
           color: #f7931a !important;
