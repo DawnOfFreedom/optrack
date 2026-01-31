@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { formatUSD, formatNumber, formatPercent } from '../../utils';
+import { formatUSD, formatNumber, formatInputNumber, parseInputNumber } from '../../utils';
 
-export default function YieldCalculator() {
+interface Props {
+  motoHoldings: string;
+}
+
+export default function YieldCalculator({ motoHoldings }: Props) {
   // Yield inputs
   const [dailyVolume, setDailyVolume] = useState('100000000'); // $100M default
   const [feePercent, setFeePercent] = useState('0.2');
@@ -19,6 +23,7 @@ export default function YieldCalculator() {
   const getYourStaked = () => parseFloat(yourStaked) || 0;
   const getMotoPrice = () => parseFloat(motoPrice) || 0;
   const getTimePeriod = () => parseFloat(timePeriod) || 12;
+  const getMotoHoldings = () => parseFloat(motoHoldings) || 0;
 
   // Calculations
   const dailyFees = getDailyVolume() * (getFeePercent() / 100);
@@ -72,9 +77,9 @@ export default function YieldCalculator() {
               DAILY MOTOSWAP VOLUME ($)
             </label>
             <input
-              type="number"
-              value={dailyVolume}
-              onChange={(e) => setDailyVolume(e.target.value)}
+              type="text"
+              value={formatInputNumber(dailyVolume)}
+              onChange={(e) => setDailyVolume(parseInputNumber(e.target.value))}
               placeholder="0"
               style={{
                 width: '100%',
@@ -96,11 +101,10 @@ export default function YieldCalculator() {
               SWAP FEE REWARD (%)
             </label>
             <input
-              type="number"
+              type="text"
               value={feePercent}
               onChange={(e) => setFeePercent(e.target.value)}
               placeholder="0.2"
-              step="0.1"
               style={{
                 width: '100%',
                 padding: '12px 0',
@@ -121,9 +125,9 @@ export default function YieldCalculator() {
               TOTAL STAKED MOTO
             </label>
             <input
-              type="number"
-              value={totalStaked}
-              onChange={(e) => setTotalStaked(e.target.value)}
+              type="text"
+              value={formatInputNumber(totalStaked)}
+              onChange={(e) => setTotalStaked(parseInputNumber(e.target.value))}
               placeholder="0"
               style={{
                 width: '100%',
@@ -145,11 +149,10 @@ export default function YieldCalculator() {
               MOTO PRICE ($)
             </label>
             <input
-              type="number"
+              type="text"
               value={motoPrice}
               onChange={(e) => setMotoPrice(e.target.value)}
               placeholder="0"
-              step="0.01"
               style={{
                 width: '100%',
                 padding: '12px 0',
@@ -164,15 +167,33 @@ export default function YieldCalculator() {
             />
           </div>
 
+          {/* Your Holdings (from Portfolio) */}
+          <div>
+            <label style={{ fontSize: '0.7rem', color: '#f7931a', fontWeight: 600 }}>
+              YOUR MOTO HOLDINGS (OP20)
+            </label>
+            <div style={{
+              padding: '12px 0',
+              fontSize: '1.2rem',
+              fontWeight: 600,
+              color: '#f7931a'
+            }}>
+              {getMotoHoldings() > 0 ? formatNumber(getMotoHoldings()) : '—'}
+            </div>
+            <p style={{ fontSize: '0.6rem', color: '#666', margin: 0 }}>
+              From Portfolio Tracker
+            </p>
+          </div>
+
           {/* Your Staked */}
           <div>
             <label style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 600 }}>
               YOUR STAKED MOTO
             </label>
             <input
-              type="number"
-              value={yourStaked}
-              onChange={(e) => setYourStaked(e.target.value)}
+              type="text"
+              value={formatInputNumber(yourStaked)}
+              onChange={(e) => setYourStaked(parseInputNumber(e.target.value))}
               placeholder="0"
               style={{
                 width: '100%',
@@ -348,9 +369,9 @@ export default function YieldCalculator() {
               TIME PERIOD (MONTHS)
             </label>
             <input
-              type="number"
-              value={timePeriod}
-              onChange={(e) => setTimePeriod(e.target.value)}
+              type="text"
+              value={formatInputNumber(timePeriod)}
+              onChange={(e) => setTimePeriod(parseInputNumber(e.target.value))}
               placeholder="12"
               style={{
                 width: '100%',

@@ -11,14 +11,21 @@ interface MotocatsState {
   btcPrice: number;
 }
 
-interface Props {
-  motocatsState: MotocatsState;
+interface MotoState {
+  holdingsOp20: string;
+  setHoldingsOp20: (value: string) => void;
 }
 
-export default function PortfolioTracker({ motocatsState }: Props) {
+interface Props {
+  motocatsState: MotocatsState;
+  motoState: MotoState;
+}
+
+export default function PortfolioTracker({ motocatsState, motoState }: Props) {
   // Holdings state
   const [holdingsCbrc, setHoldingsCbrc] = useState('');
-  const [holdingsOp20, setHoldingsOp20] = useState('');
+  const holdingsOp20 = motoState.holdingsOp20;
+  const setHoldingsOp20 = motoState.setHoldingsOp20;
   const [holdingsPills, setHoldingsPills] = useState('');
 
   // Price state
@@ -85,13 +92,6 @@ export default function PortfolioTracker({ motocatsState }: Props) {
     borderBottom: '2px solid rgba(255,255,255,0.1)',
     color: '#fff',
     outline: 'none'
-  };
-
-  const smallInputStyle = {
-    ...inputStyle,
-    fontSize: '0.9rem',
-    width: '100px',
-    textAlign: 'right' as const
   };
 
   return (

@@ -6,10 +6,10 @@ import YieldCalculator from './components/Yield/YieldCalculator';
 import Resources from './components/Resources/Resources';
 
 const sections = [
-  { id: 'portfolio', label: 'Portfolio Tracker', icon: '📊', image: '/portfolio.svg' },
-  { id: 'motocats', label: 'Motocats', icon: '🐱', image: '/motocat.png' },
-  { id: 'yield', label: 'Yield Calculator', icon: '💰', image: '/motochef.svg' },
-  { id: 'resources', label: 'Resources', icon: '🔗', image: '/resources.svg' },
+  { id: 'portfolio', label: 'Portfolio Tracker', image: '/portfolio.svg' },
+  { id: 'motocats', label: 'Motocats', image: '/motocat.png' },
+  { id: 'yield', label: 'Yield Calculator', image: '/motochef.svg' },
+  { id: 'resources', label: 'Resources', image: '/resources.svg' },
 ];
 
 const sectionHeaderStyle: React.CSSProperties = {
@@ -39,6 +39,9 @@ export default function App() {
   const [motocatsOwned, setMotocatsOwned] = useState('');
   const [motocatsFloorSats, setMotocatsFloorSats] = useState('344000');
   const [motocatsInvested, setMotocatsInvested] = useState('');
+
+  // Shared MOTO holdings state
+  const [motoHoldingsOp20, setMotoHoldingsOp20] = useState('');
 
   useEffect(() => {
     const fetchBtcPrice = async () => {
@@ -83,6 +86,11 @@ export default function App() {
     invested: motocatsInvested,
     setInvested: setMotocatsInvested,
     btcPrice: btcPrice || 100000,
+  };
+
+  const motoState = {
+    holdingsOp20: motoHoldingsOp20,
+    setHoldingsOp20: setMotoHoldingsOp20,
   };
 
   return (
@@ -228,11 +236,7 @@ export default function App() {
                   gap: '6px'
                 }}
               >
-                {'image' in section ? (
-                  <img src={section.image} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
-                ) : (
-                  <span>{section.icon}</span>
-                )}
+                <img src={section.image} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
                 <span>{section.label}</span>
               </button>
             ))}
@@ -254,7 +258,7 @@ export default function App() {
             </h2>
             <MotoConverter />
           </div>
-          <PortfolioTracker motocatsState={motocatsState} />
+          <PortfolioTracker motocatsState={motocatsState} motoState={motoState} />
         </section>
 
         {/* Motocats Section */}
@@ -270,7 +274,7 @@ export default function App() {
           <h2 style={sectionHeaderStyle}>
             <img src="/motochef.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Yield Calculator
           </h2>
-          <YieldCalculator />
+          <YieldCalculator motoHoldings={motoHoldingsOp20} />
         </section>
 
         {/* Resources Section */}

@@ -135,7 +135,7 @@ export const parseInputNumber = (value: string): string => {
 // LOCAL STORAGE HOOK
 // ============================================
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] => {
   const [storedValue, setStoredValue] = useState<T>(() => {
