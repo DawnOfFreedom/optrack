@@ -96,6 +96,32 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .portfolio-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .supply-buttons {
+            flex-wrap: wrap;
+            justify-content: flex-start !important;
+          }
+          .scenario-grid {
+            grid-template-columns: 1fr 1fr !important;
+            font-size: 0.75rem;
+          }
+          .scenario-grid > div:nth-child(2) {
+            display: none;
+          }
+        }
+        @media (max-width: 480px) {
+          .scenario-grid {
+            grid-template-columns: 1fr 1fr 1fr !important;
+          }
+          .scenario-grid > div:nth-child(4) {
+            display: none;
+          }
+        }
+      `}</style>
 
       {/* My Holdings - Cards for each token */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -115,7 +141,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
                 <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>CBRC20 & OP20</p>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div className="supply-buttons" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply:</span>
               {(['LOW', 'MID', 'HIGH'] as const).map(key => (
                 <button
@@ -140,7 +166,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div className="portfolio-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>CBRC20 AMOUNT</label>
@@ -232,7 +258,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
             <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 10.000</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div className="portfolio-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ fontSize: '0.7rem', color: '#a78bfa' }}>AMOUNT</label>
               <input
@@ -296,7 +322,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
             <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 1.000.000.000.000</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+          <div className="portfolio-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ fontSize: '0.7rem', color: '#f472b6' }}>AMOUNT</label>
               <input
@@ -381,7 +407,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
         </div>
 
         <div style={{ padding: '10px' }}>
-          <div style={{
+          <div className="scenario-grid" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
             padding: '12px 20px',
@@ -401,7 +427,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
           {(() => {
             const currentMcap = op20PriceUsd * circulatingSupply;
             return (
-              <div style={{
+              <div className="scenario-grid" style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
                 padding: '14px 20px',
@@ -433,6 +459,7 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
             return (
               <div
                 key={scenario.mcap}
+                className="scenario-grid"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',

@@ -133,6 +133,21 @@ export default function YieldCalculator({ motoHoldings }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .yield-grid-2 {
+            grid-template-columns: 1fr !important;
+          }
+          .yield-grid-4 {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .yield-grid-4 {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
       {/* Yield Inputs */}
       <div style={{
         background: 'rgba(255,255,255,0.03)',
@@ -154,7 +169,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
         </h2>
 
         {/* Your Holdings Row */}
-        <div style={{
+        <div className="yield-grid-2" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '24px',
@@ -204,7 +219,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
         </div>
 
         {/* Scenario Selectors - Side by Side */}
-        <div style={{
+        <div className="yield-grid-2" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '16px',
@@ -456,7 +471,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
             📈 YIELD PROJECTIONS
           </h3>
 
-          <div style={{
+          <div className="yield-grid-4" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '12px',

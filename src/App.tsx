@@ -125,6 +125,43 @@ export default function App() {
           -moz-appearance: textfield;
         }
 
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+          .mobile-hide {
+            display: none !important;
+          }
+          .mobile-stack {
+            flex-direction: column !important;
+          }
+          .mobile-full {
+            width: 100% !important;
+          }
+          header > div {
+            flex-wrap: wrap;
+            gap: 12px;
+          }
+          header nav {
+            order: 3;
+            width: 100%;
+            justify-content: center;
+          }
+          .converter-widget {
+            display: none !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          header {
+            padding: 12px 16px !important;
+          }
+          main {
+            padding: 20px 12px !important;
+          }
+          .nav-btn {
+            padding: 6px 10px !important;
+          }
+        }
+
         .nav-btn:hover {
           background: rgba(247, 147, 26, 0.2) !important;
           color: #f7931a !important;
@@ -239,7 +276,7 @@ export default function App() {
                 }}
               >
                 <img src={section.image} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
-                <span>{section.label}</span>
+                <span className="mobile-hide">{section.label}</span>
               </button>
             ))}
           </nav>
@@ -258,7 +295,7 @@ export default function App() {
             <h2 style={{ ...sectionHeaderStyle, marginBottom: 0, paddingBottom: 0, borderBottom: 'none' }}>
               <img src="/portfolio.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Portfolio Tracker
             </h2>
-            <MotoConverter />
+            <div className="converter-widget"><MotoConverter /></div>
           </div>
           <PortfolioTracker motocatsState={motocatsState} motoState={motoState} />
         </section>

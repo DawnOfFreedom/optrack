@@ -71,6 +71,21 @@ export default function Motocats({ motocatsState }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .motocats-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .airdrop-grid {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .airdrop-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
 
       {/* Motocats Holdings Card - Same style as Portfolio Tracker */}
       <div style={{
@@ -90,7 +105,7 @@ export default function Motocats({ motocatsState }: Props) {
           <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 10.000</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+        <div className="motocats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
           <div>
             <label style={{ fontSize: '0.7rem', color: '#a78bfa' }}>AMOUNT</label>
             <input
@@ -185,7 +200,7 @@ export default function Motocats({ motocatsState }: Props) {
           {' '}to see your miles and total miles
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
+        <div className="motocats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
           <div>
             <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>YOUR MILES</label>
             <input
@@ -219,7 +234,7 @@ export default function Motocats({ motocatsState }: Props) {
         </div>
 
         {/* Airdrop Results */}
-        <div style={{
+        <div className="airdrop-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '12px',

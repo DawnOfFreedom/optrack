@@ -6,6 +6,13 @@ export default function BuyMoto() {
       borderRadius: '16px',
       padding: '30px'
     }}>
+      <style>{`
+        @media (max-width: 600px) {
+          .buymoto-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
       {/* Info Text */}
       <div style={{ marginBottom: '30px' }}>
         <p style={{
@@ -32,7 +39,7 @@ export default function BuyMoto() {
       </div>
 
       {/* Action Buttons */}
-      <div style={{
+      <div className="buymoto-grid" style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '16px'
