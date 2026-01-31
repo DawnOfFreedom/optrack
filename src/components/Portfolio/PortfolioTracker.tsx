@@ -353,8 +353,9 @@ export default function PortfolioTracker() {
 
           {/* Pills Holdings */}
           <div>
-            <label style={{ fontSize: '0.75rem', color: '#f472b6', fontWeight: 600 }}>
-              PILLS 💊
+            <label style={{ fontSize: '0.75rem', color: '#f472b6', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <img src="/Orangepill.png" alt="Pills" style={{ width: '18px', height: '18px' }} />
+              PILLS
             </label>
             <input
               type="number"
