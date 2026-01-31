@@ -113,6 +113,24 @@ export const formatPrice = (price: number): string => {
   return `$${price.toFixed(2)}`;
 };
 
+// Format number with thousand separators (dots for NL)
+export const formatInputNumber = (value: string): string => {
+  if (!value) return '';
+  // Remove all non-numeric characters except decimal point
+  const clean = value.replace(/[^\d.]/g, '');
+  const parts = clean.split('.');
+  // Format integer part with dots as thousand separator
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return parts.length > 1 ? `${parts[0]},${parts[1]}` : parts[0];
+};
+
+// Parse formatted number back to raw number string
+export const parseInputNumber = (value: string): string => {
+  if (!value) return '';
+  // Remove thousand separators (dots), keep decimal comma and convert to dot
+  return value.replace(/\./g, '').replace(',', '.');
+};
+
 // ============================================
 // LOCAL STORAGE HOOK
 // ============================================

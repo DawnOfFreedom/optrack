@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
-import { MOTO_CONSTANTS, formatUSD, formatNumber, formatPercent, cbrcToOp20, op20ToCbrc, calculatePrice } from '../../utils';
+import { MOTO_CONSTANTS, formatUSD, formatNumber, formatPercent, cbrcToOp20, calculatePrice, formatInputNumber, parseInputNumber } from '../../utils';
 
 export default function PortfolioTracker() {
-  // Converter state
-  const [cbrc, setCbrc] = useState('');
-  const [op20, setOp20] = useState('');
-  const [lastEdited, setLastEdited] = useState<'cbrc' | 'op20' | null>(null);
-
   // Holdings state
   const [holdingsCbrc, setHoldingsCbrc] = useState('');
   const [holdingsOp20, setHoldingsOp20] = useState('');
@@ -59,26 +54,6 @@ export default function PortfolioTracker() {
     const interval = setInterval(fetchMotocatFloor, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleCbrcChange = (value: string) => {
-    setCbrc(value);
-    setLastEdited('cbrc');
-    if (value === '' || isNaN(parseFloat(value))) {
-      setOp20('');
-    } else {
-      setOp20(cbrcToOp20(parseFloat(value)).toFixed(2));
-    }
-  };
-
-  const handleOp20Change = (value: string) => {
-    setOp20(value);
-    setLastEdited('op20');
-    if (value === '' || isNaN(parseFloat(value))) {
-      setCbrc('');
-    } else {
-      setCbrc(op20ToCbrc(parseFloat(value)).toFixed(4));
-    }
-  };
 
   // Getters
   const getSats = () => parseFloat(priceSats) || 0;
@@ -184,13 +159,14 @@ export default function PortfolioTracker() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>CBRC20</label>
+                <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>CBRC20 AMOUNT</label>
                 <input
-                  type="number"
-                  value={holdingsCbrc}
+                  type="text"
+                  value={formatInputNumber(holdingsCbrc)}
                   onChange={(e) => {
-                    setHoldingsCbrc(e.target.value);
-                    const val = parseFloat(e.target.value);
+                    const raw = parseInputNumber(e.target.value);
+                    setHoldingsCbrc(raw);
+                    const val = parseFloat(raw);
                     if (!isNaN(val)) setHoldingsOp20(cbrcToOp20(val).toFixed(2));
                     else setHoldingsOp20('');
                   }}
@@ -199,11 +175,11 @@ export default function PortfolioTracker() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.7rem', color: '#4ade80' }}>OP20</label>
+                <label style={{ fontSize: '0.7rem', color: '#4ade80' }}>OP20 AMOUNT</label>
                 <input
-                  type="number"
-                  value={holdingsOp20}
-                  onChange={(e) => setHoldingsOp20(e.target.value)}
+                  type="text"
+                  value={formatInputNumber(holdingsOp20)}
+                  onChange={(e) => setHoldingsOp20(parseInputNumber(e.target.value))}
                   placeholder="0"
                   style={inputStyle}
                 />
@@ -213,10 +189,10 @@ export default function PortfolioTracker() {
               <div>
                 <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>CBRC20 PRICE (SATS)</label>
                 <input
-                  type="number"
-                  value={priceSats}
-                  onChange={(e) => setPriceSats(e.target.value)}
-                  placeholder="1000"
+                  type="text"
+                  value={formatInputNumber(priceSats)}
+                  onChange={(e) => setPriceSats(parseInputNumber(e.target.value))}
+                  placeholder="1.000"
                   style={inputStyle}
                 />
                 <p style={{ fontSize: '1rem', color: '#f7931a', margin: '4px 0 0', fontWeight: 600 }}>
@@ -234,9 +210,9 @@ export default function PortfolioTracker() {
               <div>
                 <label style={{ fontSize: '0.7rem', color: '#888' }}>$ INVESTED</label>
                 <input
-                  type="number"
-                  value={investedMoto}
-                  onChange={(e) => setInvestedMoto(e.target.value)}
+                  type="text"
+                  value={formatInputNumber(investedMoto)}
+                  onChange={(e) => setInvestedMoto(parseInputNumber(e.target.value))}
                   placeholder="0"
                   style={inputStyle}
                 />
@@ -269,27 +245,27 @@ export default function PortfolioTracker() {
                 <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>NFT Collection</p>
               </div>
             </div>
-            <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 10,000</span>
+            <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 10.000</span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ fontSize: '0.7rem', color: '#a78bfa' }}>AMOUNT</label>
               <input
-                type="number"
-                value={holdingsMotocats}
-                onChange={(e) => setHoldingsMotocats(e.target.value)}
+                type="text"
+                value={formatInputNumber(holdingsMotocats)}
+                onChange={(e) => setHoldingsMotocats(parseInputNumber(e.target.value))}
                 placeholder="0"
                 style={inputStyle}
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.7rem', color: '#888' }}>FLOOR (SATS)</label>
+              <label style={{ fontSize: '0.7rem', color: '#888' }}>FLOOR (SATS) by Magic Eden</label>
               <input
-                type="number"
-                value={motocatFloorSats}
-                onChange={(e) => setMotocatFloorSats(e.target.value)}
-                placeholder="344000"
+                type="text"
+                value={formatInputNumber(motocatFloorSats)}
+                onChange={(e) => setMotocatFloorSats(parseInputNumber(e.target.value))}
+                placeholder="344.000"
                 style={inputStyle}
               />
               <p style={{ fontSize: '0.65rem', color: '#555', margin: '4px 0 0' }}>
@@ -299,9 +275,9 @@ export default function PortfolioTracker() {
             <div>
               <label style={{ fontSize: '0.7rem', color: '#888' }}>$ INVESTED</label>
               <input
-                type="number"
-                value={investedMotocats}
-                onChange={(e) => setInvestedMotocats(e.target.value)}
+                type="text"
+                value={formatInputNumber(investedMotocats)}
+                onChange={(e) => setInvestedMotocats(parseInputNumber(e.target.value))}
                 placeholder="0"
                 style={inputStyle}
               />
@@ -333,16 +309,16 @@ export default function PortfolioTracker() {
                 <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>OrangePill Token</p>
               </div>
             </div>
-            <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 1,000,000,000,000</span>
+            <span style={{ fontSize: '0.7rem', color: '#666' }}>Supply: 1.000.000.000.000</span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ fontSize: '0.7rem', color: '#f472b6' }}>AMOUNT</label>
               <input
-                type="number"
-                value={holdingsPills}
-                onChange={(e) => setHoldingsPills(e.target.value)}
+                type="text"
+                value={formatInputNumber(holdingsPills)}
+                onChange={(e) => setHoldingsPills(parseInputNumber(e.target.value))}
                 placeholder="0"
                 style={inputStyle}
               />
@@ -354,9 +330,9 @@ export default function PortfolioTracker() {
             <div>
               <label style={{ fontSize: '0.7rem', color: '#888' }}>$ INVESTED</label>
               <input
-                type="number"
-                value={investedPills}
-                onChange={(e) => setInvestedPills(e.target.value)}
+                type="text"
+                value={formatInputNumber(investedPills)}
+                onChange={(e) => setInvestedPills(parseInputNumber(e.target.value))}
                 placeholder="0"
                 style={inputStyle}
               />
@@ -493,44 +469,6 @@ export default function PortfolioTracker() {
         </div>
       </div>
 
-      {/* MOTO Converter - Compact, right aligned */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: '12px',
-          padding: '16px 20px',
-          maxWidth: '400px'
-        }}>
-          <p style={{ fontSize: '0.7rem', color: '#666', margin: '0 0 12px', fontWeight: 600 }}>MOTO CONVERTER</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.65rem', color: '#f7931a' }}>CBRC20</label>
-              <input
-                type="number"
-                value={cbrc}
-                onChange={(e) => handleCbrcChange(e.target.value)}
-                placeholder="0"
-                style={{ ...inputStyle, fontSize: '0.95rem', padding: '6px 0' }}
-              />
-            </div>
-            <span style={{ color: '#666', fontSize: '1rem' }}>⇄</span>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.65rem', color: '#4ade80' }}>OP20</label>
-              <input
-                type="number"
-                value={op20}
-                onChange={(e) => handleOp20Change(e.target.value)}
-                placeholder="0"
-                style={{ ...inputStyle, fontSize: '0.95rem', padding: '6px 0' }}
-              />
-            </div>
-          </div>
-          <p style={{ fontSize: '0.65rem', color: '#555', margin: '8px 0 0', textAlign: 'center' }}>
-            1 CBRC20 = 47.619 OP20
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

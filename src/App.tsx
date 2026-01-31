@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PortfolioTracker from './components/Portfolio/PortfolioTracker';
+import MotoConverter from './components/Portfolio/MotoConverter';
 import Motocats from './components/Motocats/Motocats';
 import YieldCalculator from './components/Yield/YieldCalculator';
 import Resources from './components/Resources/Resources';
@@ -213,9 +214,12 @@ export default function App() {
       }}>
         {/* Portfolio Tracker Section */}
         <section id="portfolio" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
-          <h2 style={sectionHeaderStyle}>
-            <img src="/portfolio.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Portfolio Tracker
-          </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', paddingBottom: '12px', borderBottom: '2px solid rgba(247, 147, 26, 0.3)' }}>
+            <h2 style={{ ...sectionHeaderStyle, marginBottom: 0, paddingBottom: 0, borderBottom: 'none' }}>
+              <img src="/portfolio.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Portfolio Tracker
+            </h2>
+            <MotoConverter />
+          </div>
           <PortfolioTracker />
         </section>
 
