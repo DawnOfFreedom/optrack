@@ -49,7 +49,7 @@ export default function MotoConverter() {
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
         <span style={{ fontSize: '0.65rem', color: '#666', fontWeight: 600 }}>CONVERTER</span>
-        <span style={{ fontSize: '0.55rem', color: '#555' }}>1 CBRC20 = 47.619 OP20</span>
+        <span style={{ fontSize: '0.55rem', color: '#555' }}>1 CBRC20 = 37.5 OP20</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <div style={{ width: '80px' }}>
