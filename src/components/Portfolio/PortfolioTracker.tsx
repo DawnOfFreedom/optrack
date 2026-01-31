@@ -376,7 +376,7 @@ export default function PortfolioTracker({ motocatsState }: Props) {
         }}>
           <img src="/motoswap.svg" alt="MOTO" style={{ width: '24px', height: '24px' }} />
           <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff', margin: 0 }}>
-            <span style={{ color: '#f7931a' }}>$MOTO</span> INVESTMENT POTENTIAL 💎
+            <span style={{ color: '#f7931a' }}>$MOTO</span> <span style={{ color: '#888', fontWeight: 400 }}>(OP20)</span> INVESTMENT POTENTIAL 💎
           </h2>
         </div>
 

@@ -26,18 +26,21 @@ export default function Motocats({ motocatsState }: Props) {
   const btcPrice = motocatsState.btcPrice;
 
   // Airdrop settings
-  const [drivenMiles, setDrivenMiles] = useState('');
-  const [airdropPool, setAirdropPool] = useState('50000000');
-  const [totalMotocats, setTotalMotocats] = useState('550');
+  const AIRDROP_PER_CAT = 5000; // Fixed: 5000 OP20 MOTO per cat
+  const MOTO_SUPPLY = 1_000_000_000; // 1B OP20
+  const AIRDROP_PERCENTAGE = 1.9; // 1.9% distributed to race participants
+  const RACE_AIRDROP_POOL = MOTO_SUPPLY * (AIRDROP_PERCENTAGE / 100); // 19,000,000 MOTO
+
+  const [yourMiles, setYourMiles] = useState('');
+  const [totalMiles, setTotalMiles] = useState('');
   const [motoPrice, setMotoPrice] = useState('0.02');
 
   // Getters
   const getCatsOwned = () => parseFloat(catsOwned) || 0;
   const getFloorSats = () => parseFloat(floorPriceSats) || 0;
   const getInvested = () => parseFloat(invested) || 0;
-  const getDrivenMiles = () => parseFloat(drivenMiles) || 0;
-  const getAirdropPool = () => parseFloat(airdropPool) || 0;
-  const getTotalCats = () => parseFloat(totalMotocats) || 1;
+  const getYourMiles = () => parseFloat(yourMiles) || 0;
+  const getTotalMiles = () => parseFloat(totalMiles) || 0;
   const getMotoPrice = () => parseFloat(motoPrice) || 0;
 
   // Calculations
@@ -48,9 +51,11 @@ export default function Motocats({ motocatsState }: Props) {
   const pnlPercent = getInvested() > 0 ? (pnl / getInvested()) * 100 : 0;
 
   // Airdrop calculations
-  const airdropPerCat = getAirdropPool() / getTotalCats();
-  const yourAirdrop = getCatsOwned() * airdropPerCat;
-  const airdropValue = yourAirdrop * getMotoPrice();
+  const fixedAirdrop = getCatsOwned() * AIRDROP_PER_CAT; // 5000 per cat
+  const yourSharePercent = getTotalMiles() > 0 ? (getYourMiles() / getTotalMiles()) * 100 : 0;
+  const raceAirdrop = getTotalMiles() > 0 ? (getYourMiles() / getTotalMiles()) * RACE_AIRDROP_POOL : 0;
+  const totalAirdrop = fixedAirdrop + raceAirdrop;
+  const totalAirdropValue = totalAirdrop * getMotoPrice();
 
   const inputStyle = {
     width: '100%',
@@ -139,51 +144,70 @@ export default function Motocats({ motocatsState }: Props) {
         padding: '20px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-          <span style={{ fontSize: '1.5rem' }}>🎁</span>
+          <img src="/airdrop.svg" alt="Airdrop" style={{ width: '32px', height: '32px' }} />
           <div>
             <h3 style={{ margin: 0, color: '#f7931a', fontSize: '1rem', fontWeight: 700 }}>AIRDROP CALCULATOR</h3>
-            <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>Speculative - not confirmed</p>
+            <p style={{ margin: 0, color: '#666', fontSize: '0.75rem' }}>5.000 $MOTO (OP20) per cat + 1.9% race distribution</p>
           </div>
         </div>
 
+        {/* Fixed Airdrop per Cat */}
+        <div style={{
+          padding: '12px 16px',
+          background: 'rgba(74, 222, 128, 0.1)',
+          borderRadius: '8px',
+          border: '1px solid rgba(74, 222, 128, 0.2)',
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <span style={{ fontSize: '0.7rem', color: '#4ade80' }}>FIXED AIRDROP</span>
+            <span style={{ fontSize: '0.7rem', color: '#888', marginLeft: '8px' }}>
+              ({getCatsOwned()} cats × 5.000)
+            </span>
+          </div>
+          <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#4ade80' }}>
+            {formatNumber(fixedAirdrop)} $MOTO <span style={{ fontSize: '0.7rem', fontWeight: 400, color: '#888' }}>(OP20)</span>
+          </span>
+        </div>
+
+        {/* Race Airdrop */}
+        <p style={{ fontSize: '0.75rem', color: '#f7931a', marginBottom: '8px', fontWeight: 600 }}>
+          + RACE AIRDROP (1.9% of supply)
+        </p>
+        <p style={{ fontSize: '0.65rem', color: '#888', marginBottom: '12px' }}>
+          Connect wallet on{' '}
+          <a href="https://garage.motoswap.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#f7931a', textDecoration: 'none' }}>
+            garage.motoswap.org
+          </a>
+          {' '}to see your miles and total miles
+        </p>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
           <div>
-            <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>DRIVEN MILES</label>
+            <label style={{ fontSize: '0.7rem', color: '#f7931a' }}>YOUR MILES</label>
             <input
               type="text"
-              value={formatInputNumber(drivenMiles)}
-              onChange={(e) => setDrivenMiles(parseInputNumber(e.target.value))}
+              value={formatInputNumber(yourMiles)}
+              onChange={(e) => setYourMiles(parseInputNumber(e.target.value))}
               placeholder="0"
               style={inputStyle}
             />
-            <p style={{ fontSize: '0.6rem', color: '#555', margin: '4px 0 0' }}>
-              <a href="https://garage.motoswap.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#f7931a', textDecoration: 'none' }}>
-                Check garage.motoswap.org
-              </a>
-            </p>
           </div>
           <div>
-            <label style={{ fontSize: '0.7rem', color: '#888' }}>AIRDROP POOL (OP20)</label>
+            <label style={{ fontSize: '0.7rem', color: '#888' }}>TOTAL MILES (ALL RACERS)</label>
             <input
               type="text"
-              value={formatInputNumber(airdropPool)}
-              onChange={(e) => setAirdropPool(parseInputNumber(e.target.value))}
-              placeholder="50.000.000"
+              value={formatInputNumber(totalMiles)}
+              onChange={(e) => setTotalMiles(parseInputNumber(e.target.value))}
+              placeholder="0"
               style={inputStyle}
             />
           </div>
           <div>
-            <label style={{ fontSize: '0.7rem', color: '#888' }}>ELIGIBLE CATS</label>
-            <input
-              type="text"
-              value={formatInputNumber(totalMotocats)}
-              onChange={(e) => setTotalMotocats(parseInputNumber(e.target.value))}
-              placeholder="550"
-              style={inputStyle}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: '0.7rem', color: '#888' }}>$MOTO PRICE</label>
+            <label style={{ fontSize: '0.7rem', color: '#888' }}>$MOTO PRICE (OP20)</label>
             <input
               type="text"
               value={motoPrice}
@@ -197,7 +221,7 @@ export default function Motocats({ motocatsState }: Props) {
         {/* Airdrop Results */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '12px',
           marginTop: '20px'
         }}>
@@ -207,9 +231,21 @@ export default function Motocats({ motocatsState }: Props) {
             borderRadius: '8px',
             border: '1px solid rgba(255,255,255,0.05)'
           }}>
-            <div style={{ fontSize: '0.65rem', color: '#666', marginBottom: '4px' }}>AIRDROP PER CAT</div>
+            <div style={{ fontSize: '0.65rem', color: '#666', marginBottom: '4px' }}>RACE POOL (1.9%)</div>
             <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff' }}>
-              {formatNumber(Math.round(airdropPerCat))} $MOTO
+              {formatNumber(RACE_AIRDROP_POOL)} $MOTO
+            </div>
+          </div>
+
+          <div style={{
+            padding: '12px',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255,255,255,0.05)'
+          }}>
+            <div style={{ fontSize: '0.65rem', color: '#666', marginBottom: '4px' }}>YOUR SHARE</div>
+            <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff' }}>
+              {yourSharePercent.toFixed(4)}%
             </div>
           </div>
 
@@ -219,23 +255,24 @@ export default function Motocats({ motocatsState }: Props) {
             borderRadius: '8px',
             border: '1px solid rgba(247, 147, 26, 0.2)'
           }}>
-            <div style={{ fontSize: '0.65rem', color: '#f7931a', marginBottom: '4px' }}>
-              YOUR AIRDROP {getCatsOwned() > 0 && <span style={{ color: '#888' }}>({getCatsOwned()} cats)</span>}
-            </div>
+            <div style={{ fontSize: '0.65rem', color: '#f7931a', marginBottom: '4px' }}>RACE AIRDROP</div>
             <div style={{ fontSize: '1rem', fontWeight: 600, color: '#f7931a' }}>
-              {formatNumber(Math.round(yourAirdrop))} $MOTO
+              {formatNumber(Math.round(raceAirdrop))} $MOTO <span style={{ fontSize: '0.65rem', fontWeight: 400, color: '#888' }}>(OP20)</span>
             </div>
           </div>
 
           <div style={{
             padding: '12px',
-            background: 'rgba(74, 222, 128, 0.1)',
+            background: 'rgba(74, 222, 128, 0.15)',
             borderRadius: '8px',
-            border: '1px solid rgba(74, 222, 128, 0.2)'
+            border: '1px solid rgba(74, 222, 128, 0.3)'
           }}>
-            <div style={{ fontSize: '0.65rem', color: '#4ade80', marginBottom: '4px' }}>AIRDROP VALUE</div>
-            <div style={{ fontSize: '1rem', fontWeight: 700, color: '#4ade80' }}>
-              {formatUSD(airdropValue)}
+            <div style={{ fontSize: '0.65rem', color: '#4ade80', marginBottom: '4px' }}>TOTAL AIRDROP VALUE</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#4ade80' }}>
+              {formatUSD(totalAirdropValue)}
+            </div>
+            <div style={{ fontSize: '0.6rem', color: '#888', marginTop: '2px' }}>
+              {formatNumber(Math.round(totalAirdrop))} $MOTO (OP20)
             </div>
           </div>
         </div>
