@@ -7,10 +7,53 @@ export default function PortfolioTracker() {
   const [op20, setOp20] = useState('');
   const [lastEdited, setLastEdited] = useState<'cbrc' | 'op20' | null>(null);
 
+  // Holdings state
+  const [holdingsCbrc, setHoldingsCbrc] = useState('');
+  const [holdingsOp20, setHoldingsOp20] = useState('');
+  const [holdingsMotocats, setHoldingsMotocats] = useState('');
+  const [motocatFloorSats, setMotocatFloorSats] = useState('344000'); // Floor in sats (0.00344 BTC)
+
   // Portfolio state
   const [invested, setInvested] = useState('');
-  const [currentPrice, setCurrentPrice] = useState('0.33'); // Current OTC estimate
+  const [priceSats, setPriceSats] = useState('1000'); // Price in sats for CBRC-20
   const [selectedSupply, setSelectedSupply] = useState<'LOW' | 'MID' | 'HIGH'>('MID');
+  const [btcPrice, setBtcPrice] = useState<number>(100000); // BTC price in USD
+
+  // Fetch BTC price
+  useEffect(() => {
+    const fetchBtcPrice = async () => {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+        const data = await res.json();
+        setBtcPrice(data.bitcoin.usd);
+      } catch (err) {
+        console.error('Failed to fetch BTC price:', err);
+      }
+    };
+    fetchBtcPrice();
+    const interval = setInterval(fetchBtcPrice, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch Motocat floor price from Magic Eden
+  useEffect(() => {
+    const fetchMotocatFloor = async () => {
+      try {
+        const res = await fetch('https://api-mainnet.magiceden.dev/v2/ord/btc/stat?collectionSymbol=motocats');
+        const data = await res.json();
+        if (data.floorPrice) {
+          // Magic Eden returns floor in BTC, convert to sats
+          const floorSats = Math.round(data.floorPrice * 100_000_000);
+          setMotocatFloorSats(floorSats.toString());
+        }
+      } catch (err) {
+        console.error('Failed to fetch Motocat floor:', err);
+      }
+    };
+    fetchMotocatFloor();
+    const interval = setInterval(fetchMotocatFloor, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCbrcChange = (value: string) => {
     setCbrc(value);
@@ -32,12 +75,30 @@ export default function PortfolioTracker() {
     }
   };
 
-  const getOp20Amount = () => parseFloat(op20) || 0;
   const getInvested = () => parseFloat(invested) || 0;
-  const getCurrentPrice = () => parseFloat(currentPrice) || 0;
+  const getSats = () => parseFloat(priceSats) || 0;
+  const getHoldingsCbrc = () => parseFloat(holdingsCbrc) || 0;
+  const getHoldingsOp20 = () => parseFloat(holdingsOp20) || 0;
+  const getHoldingsMotocats = () => parseFloat(holdingsMotocats) || 0;
+  const getMotocatFloorSats = () => parseFloat(motocatFloorSats) || 0;
 
-  const currentValue = getOp20Amount() * getCurrentPrice();
-  const pnlDollar = currentValue - getInvested();
+  // Convert sats to USD prices
+  const satToUsd = (sats: number) => (sats / 100_000_000) * btcPrice;
+  const cbrcPriceUsd = satToUsd(getSats());
+  const op20PriceUsd = cbrcPriceUsd / MOTO_CONSTANTS.CBRC_TO_OP20_RATIO;
+  const motocatFloorUsd = satToUsd(getMotocatFloorSats());
+
+  // Calculate total holdings value
+  const cbrcValueUsd = getHoldingsCbrc() * cbrcPriceUsd;
+  const op20ValueUsd = getHoldingsOp20() * op20PriceUsd;
+  const motocatsValueUsd = getHoldingsMotocats() * motocatFloorUsd;
+  const totalMotoValueUsd = cbrcValueUsd + op20ValueUsd;
+  const totalPortfolioValueUsd = totalMotoValueUsd + motocatsValueUsd;
+
+  // Total OP20 equivalent for scenarios
+  const totalOp20Equivalent = getHoldingsOp20() + cbrcToOp20(getHoldingsCbrc());
+
+  const pnlDollar = totalPortfolioValueUsd - getInvested();
   const pnlPercent = getInvested() > 0 ? (pnlDollar / getInvested()) * 100 : 0;
 
   const circulatingSupply = MOTO_CONSTANTS.CIRCULATING_SUPPLY[selectedSupply];
@@ -150,6 +211,173 @@ export default function PortfolioTracker() {
         </div>
       </div>
 
+      {/* My Holdings */}
+      <div style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(74, 222, 128, 0.2)',
+        borderRadius: '16px',
+        padding: '30px'
+      }}>
+        <h2 style={{
+          fontSize: '0.9rem',
+          color: '#4ade80',
+          marginBottom: '20px',
+          fontWeight: 600,
+          letterSpacing: '1px'
+        }}>
+          MY HOLDINGS
+        </h2>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '20px'
+        }}>
+          {/* CBRC-20 Holdings */}
+          <div>
+            <label style={{ fontSize: '0.75rem', color: '#f7931a', fontWeight: 600 }}>
+              CBRC-20 MOTO
+            </label>
+            <input
+              type="number"
+              value={holdingsCbrc}
+              onChange={(e) => {
+                setHoldingsCbrc(e.target.value);
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                  setHoldingsOp20(cbrcToOp20(val).toFixed(2));
+                } else {
+                  setHoldingsOp20('');
+                }
+              }}
+              placeholder="0"
+              style={{
+                width: '100%',
+                padding: '12px 0',
+                fontSize: '1.3rem',
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '2px solid rgba(247, 147, 26, 0.3)',
+                color: '#fff',
+                outline: 'none'
+              }}
+            />
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
+              Waarde: <span style={{ color: '#f7931a' }}>{formatUSD(cbrcValueUsd)}</span>
+            </p>
+          </div>
+
+          {/* OP20 Holdings */}
+          <div>
+            <label style={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 600 }}>
+              OP20 MOTO
+            </label>
+            <input
+              type="number"
+              value={holdingsOp20}
+              onChange={(e) => setHoldingsOp20(e.target.value)}
+              placeholder="0"
+              style={{
+                width: '100%',
+                padding: '12px 0',
+                fontSize: '1.3rem',
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '2px solid rgba(74, 222, 128, 0.3)',
+                color: '#fff',
+                outline: 'none'
+              }}
+            />
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
+              Waarde: <span style={{ color: '#4ade80' }}>{formatUSD(op20ValueUsd)}</span>
+            </p>
+          </div>
+
+          {/* Motocats Holdings */}
+          <div>
+            <label style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600 }}>
+              MOTOCATS
+            </label>
+            <input
+              type="number"
+              value={holdingsMotocats}
+              onChange={(e) => setHoldingsMotocats(e.target.value)}
+              placeholder="0"
+              style={{
+                width: '100%',
+                padding: '12px 0',
+                fontSize: '1.3rem',
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '2px solid rgba(167, 139, 250, 0.3)',
+                color: '#fff',
+                outline: 'none'
+              }}
+            />
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
+              Waarde: <span style={{ color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
+            </p>
+          </div>
+
+          {/* Motocat Floor Price */}
+          <div>
+            <label style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600 }}>
+              MOTOCAT FLOOR (SATS)
+            </label>
+            <input
+              type="number"
+              value={motocatFloorSats}
+              onChange={(e) => setMotocatFloorSats(e.target.value)}
+              placeholder="344000"
+              style={{
+                width: '100%',
+                padding: '12px 0',
+                fontSize: '1.3rem',
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '2px solid rgba(167, 139, 250, 0.3)',
+                color: '#fff',
+                outline: 'none'
+              }}
+            />
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
+              = <span style={{ color: '#a78bfa' }}>{(getMotocatFloorSats() / 100_000_000).toFixed(4)} BTC</span>
+              {' '}/ <span style={{ color: '#a78bfa' }}>{formatUSD(motocatFloorUsd)}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Total Holdings Value */}
+        <div style={{
+          marginTop: '20px',
+          padding: '16px',
+          background: 'rgba(74, 222, 128, 0.1)',
+          borderRadius: '10px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div>
+            <span style={{ fontSize: '0.75rem', color: '#888' }}>MOTO Totaal: </span>
+            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>{formatUSD(totalMotoValueUsd)}</span>
+          </div>
+          <div>
+            <span style={{ fontSize: '0.75rem', color: '#888' }}>Motocats Totaal: </span>
+            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
+          </div>
+          <div>
+            <span style={{ fontSize: '0.75rem', color: '#4ade80' }}>PORTFOLIO TOTAAL: </span>
+            <span style={{ fontSize: '1.3rem', fontWeight: 700, color: '#4ade80' }}>{formatUSD(totalPortfolioValueUsd)}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Current Value & Investment */}
       <div style={{
         display: 'grid',
@@ -185,22 +413,21 @@ export default function PortfolioTracker() {
           />
         </div>
 
-        {/* Current Price Input */}
+        {/* Current Price Input (Sats) */}
         <div style={{
           background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid rgba(247, 147, 26, 0.2)',
           borderRadius: '16px',
           padding: '24px'
         }}>
-          <label style={{ fontSize: '0.75rem', color: '#888', fontWeight: 600 }}>
-            CURRENT PRICE ($/MOTO)
+          <label style={{ fontSize: '0.75rem', color: '#f7931a', fontWeight: 600 }}>
+            CBRC-20 PRICE (SATS)
           </label>
           <input
             type="number"
-            value={currentPrice}
-            onChange={(e) => setCurrentPrice(e.target.value)}
-            placeholder="0"
-            step="0.01"
+            value={priceSats}
+            onChange={(e) => setPriceSats(e.target.value)}
+            placeholder="1000"
             style={{
               width: '100%',
               padding: '12px 0',
@@ -208,11 +435,15 @@ export default function PortfolioTracker() {
               fontFamily: 'inherit',
               background: 'transparent',
               border: 'none',
-              borderBottom: '2px solid rgba(255,255,255,0.1)',
+              borderBottom: '2px solid rgba(247, 147, 26, 0.3)',
               color: '#fff',
               outline: 'none'
             }}
           />
+          <div style={{ marginTop: '10px', fontSize: '0.75rem', color: '#888' }}>
+            <div>CBRC-20: <span style={{ color: '#f7931a' }}>${cbrcPriceUsd.toFixed(2)}</span></div>
+            <div>OP20: <span style={{ color: '#4ade80' }}>${op20PriceUsd.toFixed(4)}</span></div>
+          </div>
         </div>
 
         {/* Current Value */}
@@ -223,10 +454,10 @@ export default function PortfolioTracker() {
           padding: '24px'
         }}>
           <label style={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 600 }}>
-            CURRENT VALUE
+            PORTFOLIO VALUE
           </label>
           <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginTop: '8px' }}>
-            {formatUSD(currentValue)}
+            {formatUSD(totalPortfolioValueUsd)}
           </div>
         </div>
 
@@ -280,6 +511,7 @@ export default function PortfolioTracker() {
             }}
           >
             {formatNumber(MOTO_CONSTANTS.CIRCULATING_SUPPLY[key])}
+            {key === 'HIGH' && <span style={{ marginLeft: '4px', opacity: 0.7 }}>(max)</span>}
           </button>
         ))}
       </div>
@@ -322,8 +554,9 @@ export default function PortfolioTracker() {
           {/* Rows */}
           {MOTO_CONSTANTS.SCENARIOS.map((scenario, idx) => {
             const price = calculatePrice(scenario.mcap, circulatingSupply);
-            const value = getOp20Amount() * price;
-            const scenarioPnl = getInvested() > 0 ? ((value - getInvested()) / getInvested()) * 100 : 0;
+            const motoValue = totalOp20Equivalent * price;
+            const totalValue = motoValue + motocatsValueUsd; // Include Motocats at current value
+            const scenarioPnl = getInvested() > 0 ? ((totalValue - getInvested()) / getInvested()) * 100 : 0;
             const isHighlight = scenario.mcap === 1_000_000_000;
 
             return (
@@ -357,16 +590,16 @@ export default function PortfolioTracker() {
                   textAlign: 'right',
                   fontWeight: 700,
                   fontSize: '1rem',
-                  color: value > 0 ? '#fff' : '#444'
+                  color: totalValue > 0 ? '#fff' : '#444'
                 }}>
-                  {value > 0 ? formatUSD(value) : '—'}
+                  {totalValue > 0 ? formatUSD(totalValue) : '—'}
                 </div>
                 <div style={{
                   textAlign: 'right',
                   fontWeight: 600,
                   color: scenarioPnl > 0 ? '#4ade80' : '#666'
                 }}>
-                  {getInvested() > 0 && value > 0 ? formatPercent(scenarioPnl) : '—'}
+                  {getInvested() > 0 && totalValue > 0 ? formatPercent(scenarioPnl) : '—'}
                 </div>
               </div>
             );

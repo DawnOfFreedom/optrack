@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import PortfolioTracker from './components/Portfolio/PortfolioTracker';
 import Motocats from './components/Motocats/Motocats';
 import YieldCalculator from './components/Yield/YieldCalculator';
@@ -31,6 +32,24 @@ const scrollToSection = (id: string) => {
 };
 
 export default function App() {
+  const [btcPrice, setBtcPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchBtcPrice = async () => {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+        const data = await res.json();
+        setBtcPrice(data.bitcoin.usd);
+      } catch (err) {
+        console.error('Failed to fetch BTC price:', err);
+      }
+    };
+
+    fetchBtcPrice();
+    const interval = setInterval(fetchBtcPrice, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -58,6 +77,18 @@ export default function App() {
           background: rgba(247, 147, 26, 0.2) !important;
           color: #f7931a !important;
         }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+        .live-dot {
+          width: 8px;
+          height: 8px;
+          background: #4ade80;
+          border-radius: 50%;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
       `}</style>
 
       {/* Sticky Header */}
@@ -80,25 +111,50 @@ export default function App() {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '24px'
           }}>
-            <img
-              src="/logo-round.svg"
-              alt="OPtrack Logo"
-              style={{ width: '36px', height: '36px' }}
-            />
-            <h1 style={{
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: '1.5rem',
-              fontWeight: 900,
-              background: 'linear-gradient(90deg, #f7931a, #ffab40)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              margin: 0,
-              letterSpacing: '2px'
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
             }}>
-              OPtrack
-            </h1>
+              <img
+                src="/logo-round.svg"
+                alt="OPtrack Logo"
+                style={{ width: '36px', height: '36px' }}
+              />
+              <h1 style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: '1.5rem',
+                fontWeight: 900,
+                background: 'linear-gradient(90deg, #f7931a, #ffab40)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                margin: 0,
+                letterSpacing: '2px'
+              }}>
+                OPtrack
+              </h1>
+            </div>
+
+            {/* Bitcoin Price */}
+            {btcPrice && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(255,255,255,0.05)',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                <div className="live-dot" />
+                <span style={{ color: '#f7931a', fontWeight: 600 }}>BTC</span>
+                <span style={{ color: '#fff', fontWeight: 600 }}>
+                  ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Navigation */}
