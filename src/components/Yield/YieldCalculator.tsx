@@ -5,9 +5,53 @@ interface Props {
   motoHoldings: string;
 }
 
+// Volume scenarios based on real DEX data
+const DEX_SCENARIOS = {
+  uniswap: {
+    name: 'Uniswap',
+    description: 'Largest DEX',
+    volumes: {
+      bear: 300_000_000,      // $300M daily in bear
+      neutral: 1_000_000_000, // $1B daily neutral
+      bull: 3_000_000_000,    // $3B daily in bull
+    }
+  },
+  pancakeswap: {
+    name: 'PancakeSwap',
+    description: '2nd largest DEX',
+    volumes: {
+      bear: 200_000_000,      // $200M daily in bear
+      neutral: 800_000_000,   // $800M daily neutral
+      bull: 2_200_000_000,    // $2.2B daily in bull
+    }
+  },
+  sushiswap: {
+    name: 'SushiSwap',
+    description: 'Mid-size DEX',
+    volumes: {
+      bear: 10_000_000,       // $10M daily in bear
+      neutral: 30_000_000,    // $30M daily neutral
+      bull: 100_000_000,      // $100M daily in bull
+    }
+  }
+};
+
+const MARKET_CONDITIONS = {
+  bear: { label: 'Bear', color: '#ef4444' },
+  neutral: { label: 'Neutral', color: '#888' },
+  bull: { label: 'Bull', color: '#4ade80' },
+};
+
+type DexType = keyof typeof DEX_SCENARIOS;
+type MarketType = keyof typeof MARKET_CONDITIONS;
+
 export default function YieldCalculator({ motoHoldings }: Props) {
+  // Scenario selectors
+  const [selectedDex, setSelectedDex] = useState<DexType>('sushiswap');
+  const [selectedMarket, setSelectedMarket] = useState<MarketType>('neutral');
+
   // Yield inputs
-  const [dailyVolume, setDailyVolume] = useState('100000000'); // $100M default
+  const [dailyVolume, setDailyVolume] = useState('30000000'); // Default to SushiSwap neutral
   const [feePercent, setFeePercent] = useState('0.2');
   const [totalStaked, setTotalStaked] = useState('8500000');
   const [yourStaked, setYourStaked] = useState('');
@@ -16,6 +60,14 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   // Compound settings
   const [compoundFreq, setCompoundFreq] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [timePeriod, setTimePeriod] = useState('12'); // months
+
+  // Update volume when scenario changes
+  const handleScenarioChange = (dex: DexType, market: MarketType) => {
+    setSelectedDex(dex);
+    setSelectedMarket(market);
+    const volume = DEX_SCENARIOS[dex].volumes[market];
+    setDailyVolume(volume.toString());
+  };
 
   const getDailyVolume = () => parseFloat(dailyVolume) || 0;
   const getFeePercent = () => parseFloat(feePercent) || 0;
@@ -66,15 +118,136 @@ export default function YieldCalculator({ motoHoldings }: Props) {
           ⚙️ MOTOSWAP STAKING PARAMETERS
         </h2>
 
+        {/* Your Holdings Row */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '24px',
+          marginBottom: '24px'
+        }}>
+          {/* Your Holdings (from Portfolio) */}
+          <div>
+            <label style={{ fontSize: '0.7rem', color: '#f7931a', fontWeight: 600 }}>
+              YOUR MOTO HOLDINGS (OP20)
+            </label>
+            <div style={{
+              padding: '12px 0',
+              fontSize: '1.2rem',
+              fontWeight: 600,
+              color: '#f7931a'
+            }}>
+              {getMotoHoldings() > 0 ? formatNumber(getMotoHoldings()) : '—'}
+            </div>
+            <p style={{ fontSize: '0.6rem', color: '#666', margin: 0 }}>
+              From Portfolio Tracker
+            </p>
+          </div>
+
+          {/* Your Staked */}
+          <div>
+            <label style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 600 }}>
+              YOUR STAKED MOTO
+            </label>
+            <input
+              type="text"
+              value={formatInputNumber(yourStaked)}
+              onChange={(e) => setYourStaked(parseInputNumber(e.target.value))}
+              placeholder="0"
+              style={{
+                width: '100%',
+                padding: '12px 0',
+                fontSize: '1.2rem',
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '2px solid #4ade80',
+                color: '#4ade80',
+                outline: 'none'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Volume Scenario Selector */}
+        <div style={{
+          background: 'rgba(255,255,255,0.02)',
+          borderRadius: '12px',
+          padding: '20px',
+          marginBottom: '24px',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '12px', display: 'block' }}>
+            VOLUME SCENARIO (based on real DEX data)
+          </label>
+
+          {/* DEX Selection */}
+          <div style={{ marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.65rem', color: '#666', marginRight: '8px' }}>Compare to:</span>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+              {(Object.keys(DEX_SCENARIOS) as DexType[]).map(dex => (
+                <button
+                  key={dex}
+                  onClick={() => handleScenarioChange(dex, selectedMarket)}
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '0.75rem',
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                    background: selectedDex === dex ? '#f7931a' : 'rgba(255,255,255,0.05)',
+                    color: selectedDex === dex ? '#000' : '#888',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {DEX_SCENARIOS[dex].name}
+                </button>
+              ))}
+            </div>
+            <p style={{ fontSize: '0.6rem', color: '#555', margin: '6px 0 0' }}>
+              {DEX_SCENARIOS[selectedDex].description}
+            </p>
+          </div>
+
+          {/* Market Condition Selection */}
+          <div>
+            <span style={{ fontSize: '0.65rem', color: '#666', marginRight: '8px' }}>Market:</span>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+              {(Object.keys(MARKET_CONDITIONS) as MarketType[]).map(market => (
+                <button
+                  key={market}
+                  onClick={() => handleScenarioChange(selectedDex, market)}
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '0.75rem',
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                    background: selectedMarket === market
+                      ? MARKET_CONDITIONS[market].color
+                      : 'rgba(255,255,255,0.05)',
+                    color: selectedMarket === market ? '#000' : '#888',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {MARKET_CONDITIONS[market].label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Parameters Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
           gap: '24px'
         }}>
           {/* Daily Volume */}
           <div>
             <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>
-              DAILY MOTOSWAP VOLUME ($)
+              DAILY VOLUME ($)
             </label>
             <input
               type="text"
@@ -93,6 +266,9 @@ export default function YieldCalculator({ motoHoldings }: Props) {
                 outline: 'none'
               }}
             />
+            <p style={{ fontSize: '0.6rem', color: '#555', margin: '4px 0 0' }}>
+              Editable - scenario is starting point
+            </p>
           </div>
 
           {/* Fee Percent */}
@@ -162,48 +338,6 @@ export default function YieldCalculator({ motoHoldings }: Props) {
                 border: 'none',
                 borderBottom: '2px solid rgba(255,255,255,0.1)',
                 color: '#fff',
-                outline: 'none'
-              }}
-            />
-          </div>
-
-          {/* Your Holdings (from Portfolio) */}
-          <div>
-            <label style={{ fontSize: '0.7rem', color: '#f7931a', fontWeight: 600 }}>
-              YOUR MOTO HOLDINGS (OP20)
-            </label>
-            <div style={{
-              padding: '12px 0',
-              fontSize: '1.2rem',
-              fontWeight: 600,
-              color: '#f7931a'
-            }}>
-              {getMotoHoldings() > 0 ? formatNumber(getMotoHoldings()) : '—'}
-            </div>
-            <p style={{ fontSize: '0.6rem', color: '#666', margin: 0 }}>
-              From Portfolio Tracker
-            </p>
-          </div>
-
-          {/* Your Staked */}
-          <div>
-            <label style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 600 }}>
-              YOUR STAKED MOTO
-            </label>
-            <input
-              type="text"
-              value={formatInputNumber(yourStaked)}
-              onChange={(e) => setYourStaked(parseInputNumber(e.target.value))}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '12px 0',
-                fontSize: '1.2rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid #4ade80',
-                color: '#4ade80',
                 outline: 'none'
               }}
             />
