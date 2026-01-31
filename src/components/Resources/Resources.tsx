@@ -43,6 +43,12 @@ const resources = [
         name: 'MotoChef',
         description: 'Yield farming & staking',
       },
+      {
+        url: 'https://t.me/MotoOTC',
+        image: '/moto-otc.svg',
+        name: 'Moto OTC',
+        description: 'Telegram OTC trading groep',
+      },
     ],
   },
   {
