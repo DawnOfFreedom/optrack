@@ -1,59 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MOTO_CONSTANTS, formatUSD, formatNumber, formatPercent, cbrcToOp20, calculatePrice, formatInputNumber, parseInputNumber } from '../../utils';
 
-export default function PortfolioTracker() {
+interface MotocatsState {
+  owned: string;
+  setOwned: (value: string) => void;
+  floorSats: string;
+  setFloorSats: (value: string) => void;
+  invested: string;
+  setInvested: (value: string) => void;
+  btcPrice: number;
+}
+
+interface Props {
+  motocatsState: MotocatsState;
+}
+
+export default function PortfolioTracker({ motocatsState }: Props) {
   // Holdings state
   const [holdingsCbrc, setHoldingsCbrc] = useState('');
   const [holdingsOp20, setHoldingsOp20] = useState('');
-  const [holdingsMotocats, setHoldingsMotocats] = useState('');
   const [holdingsPills, setHoldingsPills] = useState('');
 
   // Price state
   const [priceSats, setPriceSats] = useState('1000');
-  const [motocatFloorSats, setMotocatFloorSats] = useState('344000');
 
   // Invested per token
   const [investedMoto, setInvestedMoto] = useState('');
-  const [investedMotocats, setInvestedMotocats] = useState('');
   const [investedPills, setInvestedPills] = useState('');
 
   const [selectedSupply, setSelectedSupply] = useState<'LOW' | 'MID' | 'HIGH'>('HIGH');
-  const [btcPrice, setBtcPrice] = useState<number>(100000);
 
-  // Fetch BTC price
-  useEffect(() => {
-    const fetchBtcPrice = async () => {
-      try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-        const data = await res.json();
-        setBtcPrice(data.bitcoin.usd);
-      } catch (err) {
-        console.error('Failed to fetch BTC price:', err);
-      }
-    };
-    fetchBtcPrice();
-    const interval = setInterval(fetchBtcPrice, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Fetch Motocat floor price from Magic Eden
-  useEffect(() => {
-    const fetchMotocatFloor = async () => {
-      try {
-        const res = await fetch('https://api-mainnet.magiceden.dev/v2/ord/btc/stat?collectionSymbol=motocats');
-        const data = await res.json();
-        if (data.floorPrice) {
-          const floorSats = Math.round(data.floorPrice * 100_000_000);
-          setMotocatFloorSats(floorSats.toString());
-        }
-      } catch (err) {
-        console.error('Failed to fetch Motocat floor:', err);
-      }
-    };
-    fetchMotocatFloor();
-    const interval = setInterval(fetchMotocatFloor, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  // Use shared state from props
+  const btcPrice = motocatsState.btcPrice;
+  const holdingsMotocats = motocatsState.owned;
+  const setHoldingsMotocats = motocatsState.setOwned;
+  const motocatFloorSats = motocatsState.floorSats;
+  const setMotocatFloorSats = motocatsState.setFloorSats;
+  const investedMotocats = motocatsState.invested;
+  const setInvestedMotocats = motocatsState.setInvested;
 
   // Getters
   const getSats = () => parseFloat(priceSats) || 0;
@@ -385,10 +369,14 @@ export default function PortfolioTracker() {
         <div style={{
           padding: '20px 24px',
           borderBottom: '1px solid rgba(255,255,255,0.1)',
-          background: 'rgba(0,0,0,0.2)'
+          background: 'rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
+          <img src="/motoswap.svg" alt="MOTO" style={{ width: '24px', height: '24px' }} />
           <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff', margin: 0 }}>
-            💎 INVESTMENT POTENTIAL (DIAMOND HANDS)
+            <span style={{ color: '#f7931a' }}>$MOTO</span> INVESTMENT POTENTIAL 💎
           </h2>
         </div>
 

@@ -35,6 +35,11 @@ const scrollToSection = (id: string) => {
 export default function App() {
   const [btcPrice, setBtcPrice] = useState<number | null>(null);
 
+  // Shared Motocats state
+  const [motocatsOwned, setMotocatsOwned] = useState('');
+  const [motocatsFloorSats, setMotocatsFloorSats] = useState('344000');
+  const [motocatsInvested, setMotocatsInvested] = useState('');
+
   useEffect(() => {
     const fetchBtcPrice = async () => {
       try {
@@ -47,9 +52,38 @@ export default function App() {
     };
 
     fetchBtcPrice();
-    const interval = setInterval(fetchBtcPrice, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchBtcPrice, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Fetch Motocat floor price from Magic Eden
+  useEffect(() => {
+    const fetchMotocatFloor = async () => {
+      try {
+        const res = await fetch('https://api-mainnet.magiceden.dev/v2/ord/btc/stat?collectionSymbol=motocats');
+        const data = await res.json();
+        if (data.floorPrice) {
+          const floorSats = Math.round(data.floorPrice * 100_000_000);
+          setMotocatsFloorSats(floorSats.toString());
+        }
+      } catch (err) {
+        console.error('Failed to fetch Motocat floor:', err);
+      }
+    };
+    fetchMotocatFloor();
+    const interval = setInterval(fetchMotocatFloor, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const motocatsState = {
+    owned: motocatsOwned,
+    setOwned: setMotocatsOwned,
+    floorSats: motocatsFloorSats,
+    setFloorSats: setMotocatsFloorSats,
+    invested: motocatsInvested,
+    setInvested: setMotocatsInvested,
+    btcPrice: btcPrice || 100000,
+  };
 
   return (
     <div style={{
@@ -220,7 +254,7 @@ export default function App() {
             </h2>
             <MotoConverter />
           </div>
-          <PortfolioTracker />
+          <PortfolioTracker motocatsState={motocatsState} />
         </section>
 
         {/* Motocats Section */}
@@ -228,7 +262,7 @@ export default function App() {
           <h2 style={sectionHeaderStyle}>
             <img src="/motocat.png" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Motocats
           </h2>
-          <Motocats />
+          <Motocats motocatsState={motocatsState} />
         </section>
 
         {/* Yield Calculator Section */}
