@@ -10,9 +10,21 @@ const resources = [
       },
       {
         url: 'https://opnet.org',
-        icon: '🟠',
+        image: '/opnet.svg',
         name: 'OP_NET',
         description: 'Smart contracts op Bitcoin L1',
+      },
+      {
+        url: 'https://dev.opnet.org',
+        icon: '👨‍💻',
+        name: 'Developer Docs',
+        description: 'Documentatie voor developers',
+      },
+      {
+        url: 'https://orangepill.fun',
+        icon: '🟠',
+        name: 'OrangePill',
+        description: 'Bitcoin educatie & community',
       },
     ],
   },
@@ -21,13 +33,13 @@ const resources = [
     items: [
       {
         url: 'https://motoswap.org',
-        icon: '🔄',
+        image: '/motoswap.svg',
         name: 'Motoswap DEX',
         description: 'Token swaps & liquidity pools',
       },
       {
         url: 'https://farm.motoswap.org',
-        icon: '🌾',
+        image: '/motochef.svg',
         name: 'MotoChef',
         description: 'Yield farming & staking',
       },
@@ -38,7 +50,7 @@ const resources = [
     items: [
       {
         url: 'https://garage.motoswap.org',
-        icon: '🐱',
+        image: '/motocat.png',
         name: 'Motocats Garage',
         description: 'NFT dashboard & boosts',
       },
@@ -65,6 +77,18 @@ const resources = [
         name: 'Cybord API',
         description: 'Transfer verificatie',
       },
+      {
+        url: 'https://faucet.opnet.org',
+        icon: '🚰',
+        name: 'Faucet',
+        description: 'Testnet tokens verkrijgen',
+      },
+      {
+        url: 'https://opnet.org/portal',
+        icon: '🌐',
+        name: 'OP_NET Portal',
+        description: 'Dashboard & wallet connect',
+      },
     ],
   },
 ];
@@ -81,12 +105,6 @@ const cardStyle: React.CSSProperties = {
   color: 'inherit',
   transition: 'all 0.2s ease',
   cursor: 'pointer',
-};
-
-const cardHoverStyle: React.CSSProperties = {
-  background: 'rgba(247, 147, 26, 0.1)',
-  borderColor: 'rgba(247, 147, 26, 0.3)',
-  transform: 'translateY(-2px)',
 };
 
 export default function Resources() {
@@ -134,7 +152,20 @@ export default function Resources() {
                 className="resource-card"
                 style={cardStyle}
               >
-                <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
+                {'image' in item ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      objectFit: 'contain',
+                      borderRadius: '6px',
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
+                )}
                 <div>
                   <div
                     className="card-name"

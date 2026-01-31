@@ -5,7 +5,7 @@ import Resources from './components/Resources/Resources';
 
 const sections = [
   { id: 'portfolio', label: 'Portfolio Tracker', icon: '📊' },
-  { id: 'motocats', label: 'Motocats', icon: '🐱' },
+  { id: 'motocats', label: 'Motocats', icon: '🐱', image: '/motocat.png' },
   { id: 'yield', label: 'Yield Calculator', icon: '💰' },
   { id: 'resources', label: 'Resources', icon: '🔗' },
 ];
@@ -130,7 +130,11 @@ export default function App() {
                   gap: '6px'
                 }}
               >
-                <span>{section.icon}</span>
+                {'image' in section ? (
+                  <img src={section.image} alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+                ) : (
+                  <span>{section.icon}</span>
+                )}
                 <span>{section.label}</span>
               </button>
             ))}
@@ -155,7 +159,7 @@ export default function App() {
         {/* Motocats Section */}
         <section id="motocats" style={{ marginBottom: '80px', scrollMarginTop: '100px' }}>
           <h2 style={sectionHeaderStyle}>
-            <span>🐱</span> Motocats
+            <img src="/motocat.png" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Motocats
           </h2>
           <Motocats />
         </section>
