@@ -11,6 +11,7 @@ export default function PortfolioTracker() {
   const [holdingsCbrc, setHoldingsCbrc] = useState('');
   const [holdingsOp20, setHoldingsOp20] = useState('');
   const [holdingsMotocats, setHoldingsMotocats] = useState('');
+  const [holdingsPills, setHoldingsPills] = useState('');
   const [motocatFloorSats, setMotocatFloorSats] = useState('344000'); // Floor in sats (0.00344 BTC)
 
   // Portfolio state
@@ -264,7 +265,7 @@ export default function PortfolioTracker() {
               }}
             />
             <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              Waarde: <span style={{ color: '#f7931a' }}>{formatUSD(cbrcValueUsd)}</span>
+              Value: <span style={{ color: '#f7931a' }}>{formatUSD(cbrcValueUsd)}</span>
             </p>
           </div>
 
@@ -291,7 +292,7 @@ export default function PortfolioTracker() {
               }}
             />
             <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              Waarde: <span style={{ color: '#4ade80' }}>{formatUSD(op20ValueUsd)}</span>
+              Value: <span style={{ color: '#4ade80' }}>{formatUSD(op20ValueUsd)}</span>
             </p>
           </div>
 
@@ -318,7 +319,7 @@ export default function PortfolioTracker() {
               }}
             />
             <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
-              Waarde: <span style={{ color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
+              Value: <span style={{ color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
             </p>
           </div>
 
@@ -349,6 +350,33 @@ export default function PortfolioTracker() {
               {' '}/ <span style={{ color: '#a78bfa' }}>{formatUSD(motocatFloorUsd)}</span>
             </p>
           </div>
+
+          {/* Pills Holdings */}
+          <div>
+            <label style={{ fontSize: '0.75rem', color: '#f472b6', fontWeight: 600 }}>
+              PILLS 💊
+            </label>
+            <input
+              type="number"
+              value={holdingsPills}
+              onChange={(e) => setHoldingsPills(e.target.value)}
+              placeholder="0"
+              style={{
+                width: '100%',
+                padding: '12px 0',
+                fontSize: '1.3rem',
+                fontFamily: 'inherit',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '2px solid rgba(244, 114, 182, 0.3)',
+                color: '#fff',
+                outline: 'none'
+              }}
+            />
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '6px' }}>
+              Value: <span style={{ color: '#f472b6', fontStyle: 'italic' }}>soon™</span>
+            </p>
+          </div>
         </div>
 
         {/* Total Holdings Value */}
@@ -364,11 +392,11 @@ export default function PortfolioTracker() {
           gap: '12px'
         }}>
           <div>
-            <span style={{ fontSize: '0.75rem', color: '#888' }}>MOTO Totaal: </span>
+            <span style={{ fontSize: '0.75rem', color: '#888' }}>MOTO Total: </span>
             <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>{formatUSD(totalMotoValueUsd)}</span>
           </div>
           <div>
-            <span style={{ fontSize: '0.75rem', color: '#888' }}>Motocats Totaal: </span>
+            <span style={{ fontSize: '0.75rem', color: '#888' }}>Motocats Total: </span>
             <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#a78bfa' }}>{formatUSD(motocatsValueUsd)}</span>
           </div>
           <div>
