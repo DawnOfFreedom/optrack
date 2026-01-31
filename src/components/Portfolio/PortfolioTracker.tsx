@@ -16,7 +16,7 @@ export default function PortfolioTracker() {
   // Portfolio state
   const [invested, setInvested] = useState('');
   const [priceSats, setPriceSats] = useState('1000'); // Price in sats for CBRC-20
-  const [selectedSupply, setSelectedSupply] = useState<'LOW' | 'MID' | 'HIGH'>('MID');
+  const [selectedSupply, setSelectedSupply] = useState<'LOW' | 'MID' | 'HIGH'>('HIGH');
   const [btcPrice, setBtcPrice] = useState<number>(100000); // BTC price in USD
 
   // Fetch BTC price
@@ -551,7 +551,40 @@ export default function PortfolioTracker() {
             <div style={{ textAlign: 'right' }}>PNL</div>
           </div>
 
-          {/* Rows */}
+          {/* Current Value Row */}
+          {(() => {
+            const currentMcap = op20PriceUsd * circulatingSupply;
+            return (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
+                  padding: '14px 20px',
+                  alignItems: 'center',
+                  background: 'rgba(74, 222, 128, 0.15)',
+                  borderBottom: '2px solid rgba(74, 222, 128, 0.3)'
+                }}
+              >
+                <div style={{ fontWeight: 700, color: '#4ade80', fontSize: '1rem' }}>
+                  {formatUSD(currentMcap)}
+                </div>
+                <div style={{ color: '#4ade80', fontSize: '0.85rem' }}>
+                  Current
+                </div>
+                <div style={{ color: '#4ade80', fontWeight: 500 }}>
+                  ${op20PriceUsd.toFixed(op20PriceUsd < 1 ? 4 : 2)}
+                </div>
+                <div style={{ textAlign: 'right', fontWeight: 700, fontSize: '1rem', color: '#4ade80' }}>
+                  {totalPortfolioValueUsd > 0 ? formatUSD(totalPortfolioValueUsd) : '—'}
+                </div>
+                <div style={{ textAlign: 'right', fontWeight: 600, color: pnlPercent >= 0 ? '#4ade80' : '#ef4444' }}>
+                  {getInvested() > 0 && totalPortfolioValueUsd > 0 ? formatPercent(pnlPercent) : '—'}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Scenario Rows */}
           {MOTO_CONSTANTS.SCENARIOS.map((scenario, idx) => {
             const price = calculatePrice(scenario.mcap, circulatingSupply);
             const motoValue = totalOp20Equivalent * price;

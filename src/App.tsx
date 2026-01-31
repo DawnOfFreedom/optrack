@@ -60,8 +60,15 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap');
 
-        html {
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        html, body {
           scroll-behavior: smooth;
+          background: #0a0a0f;
         }
 
         input::-webkit-outer-spin-button,
