@@ -163,7 +163,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
           alignItems: 'center',
           gap: '8px'
         }}>
-          ⚙️ MOTOSWAP STAKING PARAMETERS
+          <img src="/motoswap.svg" alt="MOTO" style={{ width: '20px', height: '20px' }} /> MOTOSWAP STAKING PARAMETERS
         </h2>
 
         {/* Your Holdings Row */}
@@ -216,125 +216,124 @@ export default function YieldCalculator({ motoHoldings }: Props) {
           </div>
         </div>
 
-        {/* Volume Scenario Selector */}
+        {/* Scenario Selectors - Side by Side */}
         <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          borderRadius: '12px',
-          padding: '20px',
-          marginBottom: '24px',
-          border: '1px solid rgba(255,255,255,0.05)'
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '16px',
+          marginBottom: '24px'
         }}>
-          <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '12px', display: 'block' }}>
-            VOLUME SCENARIO (based on real DEX data)
-          </label>
+          {/* Volume Scenario */}
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid rgba(255,255,255,0.05)'
+          }}>
+            <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '10px', display: 'block' }}>
+              VOLUME SCENARIO
+            </label>
 
-          {/* DEX Selection */}
-          <div style={{ marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.65rem', color: '#666', marginRight: '8px' }}>Compare to:</span>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-              {(Object.keys(DEX_SCENARIOS) as DexType[]).map(dex => (
-                <button
-                  key={dex}
-                  onClick={() => handleVolumeScenarioChange(dex, selectedMarket)}
-                  style={{
-                    padding: '8px 14px',
-                    fontSize: '0.75rem',
-                    fontFamily: 'inherit',
-                    fontWeight: 600,
-                    background: selectedDex === dex ? '#f7931a' : 'rgba(255,255,255,0.05)',
-                    color: selectedDex === dex ? '#000' : '#888',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {DEX_SCENARIOS[dex].name}
-                </button>
-              ))}
+            {/* DEX Selection */}
+            <div style={{ marginBottom: '10px' }}>
+              <span style={{ fontSize: '0.6rem', color: '#666' }}>DEX:</span>
+              <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                {(Object.keys(DEX_SCENARIOS) as DexType[]).map(dex => (
+                  <button
+                    key={dex}
+                    onClick={() => handleVolumeScenarioChange(dex, selectedMarket)}
+                    style={{
+                      padding: '6px 10px',
+                      fontSize: '0.65rem',
+                      fontFamily: 'inherit',
+                      fontWeight: 600,
+                      background: selectedDex === dex ? '#f7931a' : 'rgba(255,255,255,0.05)',
+                      color: selectedDex === dex ? '#000' : '#888',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {DEX_SCENARIOS[dex].name}
+                  </button>
+                ))}
+              </div>
             </div>
-            <p style={{ fontSize: '0.6rem', color: '#555', margin: '6px 0 0' }}>
+
+            {/* Market Condition */}
+            <div>
+              <span style={{ fontSize: '0.6rem', color: '#666' }}>Market:</span>
+              <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                {(Object.keys(MARKET_CONDITIONS) as MarketType[]).map(market => (
+                  <button
+                    key={market}
+                    onClick={() => handleVolumeScenarioChange(selectedDex, market)}
+                    style={{
+                      padding: '6px 10px',
+                      fontSize: '0.65rem',
+                      fontFamily: 'inherit',
+                      fontWeight: 600,
+                      background: selectedMarket === market
+                        ? MARKET_CONDITIONS[market].color
+                        : 'rgba(255,255,255,0.05)',
+                      color: selectedMarket === market ? '#000' : '#888',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {MARKET_CONDITIONS[market].label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p style={{ fontSize: '0.55rem', color: '#555', margin: '8px 0 0' }}>
               {DEX_SCENARIOS[selectedDex].description}
             </p>
           </div>
 
-          {/* Market Condition Selection */}
-          <div>
-            <span style={{ fontSize: '0.65rem', color: '#666', marginRight: '8px' }}>Market:</span>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-              {(Object.keys(MARKET_CONDITIONS) as MarketType[]).map(market => (
+          {/* Staking Ratio Scenario */}
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '1px solid rgba(255,255,255,0.05)'
+          }}>
+            <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '10px', display: 'block' }}>
+              STAKING RATIO (% of 1B)
+            </label>
+
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+              {(Object.keys(STAKING_SCENARIOS) as StakingType[]).map(staking => (
                 <button
-                  key={market}
-                  onClick={() => handleVolumeScenarioChange(selectedDex, market)}
+                  key={staking}
+                  onClick={() => handleStakingScenarioChange(staking)}
                   style={{
-                    padding: '8px 14px',
-                    fontSize: '0.75rem',
+                    padding: '6px 8px',
+                    fontSize: '0.6rem',
                     fontFamily: 'inherit',
                     fontWeight: 600,
-                    background: selectedMarket === market
-                      ? MARKET_CONDITIONS[market].color
+                    background: selectedStaking === staking
+                      ? STAKING_SCENARIOS[staking].color
                       : 'rgba(255,255,255,0.05)',
-                    color: selectedMarket === market ? '#000' : '#888',
+                    color: selectedStaking === staking ? '#000' : '#888',
                     border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    minWidth: '55px'
                   }}
                 >
-                  {MARKET_CONDITIONS[market].label}
+                  <span>{STAKING_SCENARIOS[staking].percentage}%</span>
                 </button>
               ))}
             </div>
+            <p style={{ fontSize: '0.55rem', color: '#555', margin: '8px 0 0' }}>
+              {STAKING_SCENARIOS[selectedStaking].label}: {STAKING_SCENARIOS[selectedStaking].description}
+            </p>
           </div>
-        </div>
-
-        {/* Staking Scenario Selector */}
-        <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          borderRadius: '12px',
-          padding: '20px',
-          marginBottom: '24px',
-          border: '1px solid rgba(255,255,255,0.05)'
-        }}>
-          <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600, marginBottom: '12px', display: 'block' }}>
-            STAKING RATIO SCENARIO (% of 1B supply staked)
-          </label>
-
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {(Object.keys(STAKING_SCENARIOS) as StakingType[]).map(staking => (
-              <button
-                key={staking}
-                onClick={() => handleStakingScenarioChange(staking)}
-                style={{
-                  padding: '8px 12px',
-                  fontSize: '0.7rem',
-                  fontFamily: 'inherit',
-                  fontWeight: 600,
-                  background: selectedStaking === staking
-                    ? STAKING_SCENARIOS[staking].color
-                    : 'rgba(255,255,255,0.05)',
-                  color: selectedStaking === staking ? '#000' : '#888',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  minWidth: '80px'
-                }}
-              >
-                <span>{STAKING_SCENARIOS[staking].label}</span>
-                <span style={{
-                  fontSize: '0.6rem',
-                  opacity: selectedStaking === staking ? 0.8 : 0.6,
-                  marginTop: '2px'
-                }}>
-                  {STAKING_SCENARIOS[staking].percentage}%
-                </span>
-              </button>
-            ))}
-          </div>
-          <p style={{ fontSize: '0.6rem', color: '#555', margin: '8px 0 0' }}>
-            {STAKING_SCENARIOS[selectedStaking].description} → {formatNumber(STAKING_SCENARIOS[selectedStaking].amount)} MOTO staked
-          </p>
         </div>
 
         {/* Parameters Grid */}
@@ -418,10 +417,10 @@ export default function YieldCalculator({ motoHoldings }: Props) {
             />
           </div>
 
-          {/* MOTO Price */}
+          {/* MOTO Price OP20 */}
           <div>
-            <label style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>
-              MOTO PRICE ($)
+            <label style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 600 }}>
+              MOTO PRICE (OP20)
             </label>
             <input
               type="text"
@@ -436,7 +435,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
                 background: 'transparent',
                 border: 'none',
                 borderBottom: '2px solid rgba(255,255,255,0.1)',
-                color: '#fff',
+                color: '#4ade80',
                 outline: 'none'
               }}
             />
@@ -457,73 +456,68 @@ export default function YieldCalculator({ motoHoldings }: Props) {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Yield Projections */}
-      <div style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '16px',
-        padding: '30px'
-      }}>
-        <h2 style={{
-          fontSize: '0.9rem',
-          color: '#fff',
-          marginBottom: '24px',
-          fontWeight: 600,
-          letterSpacing: '1px'
-        }}>
-          📈 YIELD PROJECTIONS
-        </h2>
+        {/* Yield Projections - Inside main box */}
+        <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          <h3 style={{
+            fontSize: '0.8rem',
+            color: '#fff',
+            marginBottom: '16px',
+            fontWeight: 600,
+            letterSpacing: '1px'
+          }}>
+            📈 YIELD PROJECTIONS
+          </h3>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '16px'
-        }}>
-          {[
-            { label: 'DAILY', value: yourDailyUSD, moto: yourDailyMoto },
-            { label: 'WEEKLY', value: weeklyUSD, moto: yourDailyMoto * 7 },
-            { label: 'MONTHLY', value: monthlyUSD, moto: yourDailyMoto * 30 },
-            { label: 'YEARLY', value: yearlyUSD, moto: yourDailyMoto * 365 },
-          ].map(item => (
-            <div
-              key={item.label}
-              style={{
-                padding: '20px',
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.05)',
-                textAlign: 'center'
-              }}
-            >
-              <div style={{ fontSize: '0.7rem', color: '#666', marginBottom: '8px' }}>
-                {item.label}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '12px',
+            marginBottom: '16px'
+          }}>
+            {[
+              { label: 'DAILY', value: yourDailyUSD, moto: yourDailyMoto },
+              { label: 'WEEKLY', value: weeklyUSD, moto: yourDailyMoto * 7 },
+              { label: 'MONTHLY', value: monthlyUSD, moto: yourDailyMoto * 30 },
+              { label: 'YEARLY', value: yearlyUSD, moto: yourDailyMoto * 365 },
+            ].map(item => (
+              <div
+                key={item.label}
+                style={{
+                  padding: '16px',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  textAlign: 'center'
+                }}
+              >
+                <div style={{ fontSize: '0.65rem', color: '#666', marginBottom: '6px' }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#4ade80' }}>
+                  {formatUSD(item.value)}
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#888', marginTop: '4px' }}>
+                  ~{formatNumber(Math.round(item.moto))} MOTO
+                </div>
               </div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#4ade80' }}>
-                {formatUSD(item.value)}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px' }}>
-                ~{formatNumber(Math.round(item.moto))} MOTO
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* APY Display */}
-        <div style={{
-          marginTop: '20px',
-          padding: '20px',
-          background: 'linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(74, 222, 128, 0.05))',
-          borderRadius: '12px',
-          border: '1px solid rgba(74, 222, 128, 0.3)',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '0.8rem', color: '#4ade80', marginBottom: '8px' }}>
-            ESTIMATED APY (SIMPLE)
+            ))}
           </div>
-          <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#4ade80' }}>
-            {simpleAPY.toFixed(2)}%
+
+          {/* APY Display */}
+          <div style={{
+            padding: '16px',
+            background: 'linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(74, 222, 128, 0.05))',
+            borderRadius: '10px',
+            border: '1px solid rgba(74, 222, 128, 0.3)',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '0.7rem', color: '#4ade80', marginBottom: '6px' }}>
+              ESTIMATED APY (SIMPLE)
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 900, color: '#4ade80' }}>
+              {simpleAPY.toFixed(2)}%
+            </div>
           </div>
         </div>
       </div>
