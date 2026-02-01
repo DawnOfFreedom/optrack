@@ -96,7 +96,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   const [feePercent, setFeePercent] = useState('0.2');
   const [totalStaked, setTotalStaked] = useState('500000000'); // Default to medium (50%)
   const [yourStaked, setYourStaked] = useState('');
-  const [motoPrice, setMotoPrice] = useState('0.33');
+  const [motoPrice, setMotoPrice] = useState('0.0088');
 
   // Update volume when scenario changes
   const handleVolumeScenarioChange = (dex: DexType, market: MarketType) => {
