@@ -400,7 +400,7 @@ export default function App() {
           <h2 style={sectionHeaderStyle}>
             <img src="/motochef.svg" alt="" style={{ width: '32px', height: '32px', objectFit: 'contain' }} /> Yield Calculator
           </h2>
-          <YieldCalculator motoHoldings={motoHoldingsOp20} />
+          <YieldCalculator motoHoldings={motoHoldingsOp20} btcPrice={btcPrice || 100000} />
         </section>
 
         {/* Buy $MOTO Section */}

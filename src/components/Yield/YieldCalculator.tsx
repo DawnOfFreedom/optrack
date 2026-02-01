@@ -3,6 +3,7 @@ import { formatUSD, formatNumber, formatInputNumber, parseInputNumber } from '..
 
 interface Props {
   motoHoldings: string;
+  btcPrice: number;
 }
 
 // Volume scenarios based on real DEX data
@@ -85,18 +86,25 @@ type DexType = keyof typeof DEX_SCENARIOS;
 type MarketType = keyof typeof MARKET_CONDITIONS;
 type StakingType = keyof typeof STAKING_SCENARIOS;
 
-export default function YieldCalculator({ motoHoldings }: Props) {
+// CBRC to OP20 ratio
+const CBRC_TO_OP20_RATIO = 37.489;
+const DEFAULT_CBRC_SATS = 1000;
+
+export default function YieldCalculator({ motoHoldings, btcPrice }: Props) {
   // Scenario selectors
   const [selectedDex, setSelectedDex] = useState<DexType>('sushiswap');
   const [selectedMarket, setSelectedMarket] = useState<MarketType>('neutral');
   const [selectedStaking, setSelectedStaking] = useState<StakingType>('medium');
+
+  // Calculate default OP20 price from BTC price
+  const defaultOp20Price = ((DEFAULT_CBRC_SATS / 100_000_000) * btcPrice) / CBRC_TO_OP20_RATIO;
 
   // Yield inputs
   const [dailyVolume, setDailyVolume] = useState('30000000'); // Default to SushiSwap neutral
   const [feePercent, setFeePercent] = useState('0.2');
   const [totalStaked, setTotalStaked] = useState('500000000'); // Default to medium (50%)
   const [yourStaked, setYourStaked] = useState('');
-  const [motoPrice, setMotoPrice] = useState('0.0088');
+  const [motoPrice, setMotoPrice] = useState('');
 
   // Update volume when scenario changes
   const handleVolumeScenarioChange = (dex: DexType, market: MarketType) => {
@@ -117,7 +125,7 @@ export default function YieldCalculator({ motoHoldings }: Props) {
   const getFeePercent = () => parseFloat(feePercent) || 0;
   const getTotalStaked = () => parseFloat(totalStaked) || 1;
   const getYourStaked = () => parseFloat(yourStaked) || 0;
-  const getMotoPrice = () => parseFloat(motoPrice) || 0;
+  const getMotoPrice = () => parseFloat(motoPrice) || defaultOp20Price;
   const getMotoHoldings = () => parseFloat(motoHoldings) || 0;
 
   // Calculations
@@ -424,23 +432,32 @@ export default function YieldCalculator({ motoHoldings }: Props) {
             <label style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 600 }}>
               MOTO PRICE (OP20)
             </label>
-            <input
-              type="text"
-              value={motoPrice}
-              onChange={(e) => setMotoPrice(e.target.value)}
-              placeholder="0"
-              style={{
-                width: '100%',
-                padding: '12px 0',
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute',
+                left: 0,
+                top: '12px',
                 fontSize: '1.2rem',
-                fontFamily: 'inherit',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid rgba(255,255,255,0.1)',
-                color: '#4ade80',
-                outline: 'none'
-              }}
-            />
+                color: '#4ade80'
+              }}>$</span>
+              <input
+                type="text"
+                value={motoPrice}
+                onChange={(e) => setMotoPrice(e.target.value)}
+                placeholder={defaultOp20Price.toFixed(4)}
+                style={{
+                  width: '100%',
+                  padding: '12px 0 12px 16px',
+                  fontSize: '1.2rem',
+                  fontFamily: 'inherit',
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: '2px solid rgba(255,255,255,0.1)',
+                  color: '#4ade80',
+                  outline: 'none'
+                }}
+              />
+            </div>
           </div>
 
           {/* Fee per MOTO */}
