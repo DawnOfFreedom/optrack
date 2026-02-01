@@ -22,7 +22,6 @@ export const MOTO_CONSTANTS = {
     { mcap: 5_000_000_000, label: '$5B', type: 'Moonshot' },
     { mcap: 10_000_000_000, label: '$10B', type: 'Legendary' },
     { mcap: 50_000_000_000, label: '$50B', type: 'Galactic' },
-    { mcap: 100_000_000_000, label: '$100B', type: 'God Mode' },
   ],
 };
 
