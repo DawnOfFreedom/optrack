@@ -423,17 +423,22 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
             <div style={{ textAlign: 'right' }}>PNL</div>
           </div>
 
-          {/* Current Value Row */}
+          {/* Scenario Rows with dynamic Current position */}
           {(() => {
             const currentMcap = op20PriceUsd * circulatingSupply;
-            return (
+            const scenarios = MOTO_CONSTANTS.SCENARIOS;
+            const rows: React.ReactNode[] = [];
+            let currentInserted = false;
+
+            // Current row component
+            const CurrentRow = ({ isLast }: { isLast: boolean }) => (
               <div className="scenario-grid" style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
                 padding: '14px 20px',
                 alignItems: 'center',
                 background: 'rgba(74, 222, 128, 0.15)',
-                borderBottom: '2px solid rgba(74, 222, 128, 0.3)'
+                borderBottom: isLast ? 'none' : '1px solid rgba(74, 222, 128, 0.3)'
               }}>
                 <div style={{ fontWeight: 700, color: '#4ade80', fontSize: '1rem' }}>{formatUSD(currentMcap)}</div>
                 <div style={{ color: '#4ade80', fontSize: '0.85rem' }}>Current</div>
@@ -446,41 +451,55 @@ export default function PortfolioTracker({ motocatsState, motoState }: Props) {
                 </div>
               </div>
             );
+
+            scenarios.forEach((scenario, idx) => {
+              // Insert current row before the first scenario with higher mcap
+              if (!currentInserted && currentMcap < scenario.mcap) {
+                rows.push(<CurrentRow key="current" isLast={false} />);
+                currentInserted = true;
+              }
+
+              const price = calculatePrice(scenario.mcap, circulatingSupply);
+              const motoValue = totalOp20Equivalent * price;
+              const totalValue = motoValue + motocatsValueUsd;
+              const scenarioPnl = getTotalInvested() > 0 ? ((totalValue - getTotalInvested()) / getTotalInvested()) * 100 : 0;
+              const isHighlight = scenario.mcap === 1_000_000_000;
+              const isLastScenario = idx === scenarios.length - 1;
+              const isLast = isLastScenario && currentInserted;
+
+              rows.push(
+                <div
+                  key={scenario.mcap}
+                  className="scenario-grid"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
+                    padding: '14px 20px',
+                    alignItems: 'center',
+                    background: isHighlight ? 'rgba(247, 147, 26, 0.1)' : 'transparent',
+                    borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'
+                  }}
+                >
+                  <div style={{ fontWeight: 700, color: isHighlight ? '#f7931a' : '#fff', fontSize: '1rem' }}>{scenario.label}</div>
+                  <div style={{ color: '#666', fontSize: '0.85rem' }}>{scenario.type}</div>
+                  <div style={{ color: '#4ade80', fontWeight: 500 }}>${price.toFixed(price < 1 ? 3 : 2)}</div>
+                  <div style={{ textAlign: 'right', fontWeight: 700, fontSize: '1rem', color: totalValue > 0 ? '#fff' : '#444' }}>
+                    {totalValue > 0 ? formatUSD(totalValue) : '—'}
+                  </div>
+                  <div style={{ textAlign: 'right', fontWeight: 600, color: scenarioPnl > 0 ? '#4ade80' : '#666' }}>
+                    {getTotalInvested() > 0 && totalValue > 0 ? formatPercent(scenarioPnl) : '—'}
+                  </div>
+                </div>
+              );
+            });
+
+            // If current mcap is higher than all scenarios, add at the end
+            if (!currentInserted) {
+              rows.push(<CurrentRow key="current" isLast={true} />);
+            }
+
+            return rows;
           })()}
-
-          {/* Scenario Rows */}
-          {MOTO_CONSTANTS.SCENARIOS.map((scenario, idx) => {
-            const price = calculatePrice(scenario.mcap, circulatingSupply);
-            const motoValue = totalOp20Equivalent * price;
-            const totalValue = motoValue + motocatsValueUsd;
-            const scenarioPnl = getTotalInvested() > 0 ? ((totalValue - getTotalInvested()) / getTotalInvested()) * 100 : 0;
-            const isHighlight = scenario.mcap === 1_000_000_000;
-
-            return (
-              <div
-                key={scenario.mcap}
-                className="scenario-grid"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr 1fr 1.5fr 1fr',
-                  padding: '14px 20px',
-                  alignItems: 'center',
-                  background: isHighlight ? 'rgba(247, 147, 26, 0.1)' : 'transparent',
-                  borderBottom: idx < MOTO_CONSTANTS.SCENARIOS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
-                }}
-              >
-                <div style={{ fontWeight: 700, color: isHighlight ? '#f7931a' : '#fff', fontSize: '1rem' }}>{scenario.label}</div>
-                <div style={{ color: '#666', fontSize: '0.85rem' }}>{scenario.type}</div>
-                <div style={{ color: '#4ade80', fontWeight: 500 }}>${price.toFixed(price < 1 ? 3 : 2)}</div>
-                <div style={{ textAlign: 'right', fontWeight: 700, fontSize: '1rem', color: totalValue > 0 ? '#fff' : '#444' }}>
-                  {totalValue > 0 ? formatUSD(totalValue) : '—'}
-                </div>
-                <div style={{ textAlign: 'right', fontWeight: 600, color: scenarioPnl > 0 ? '#4ade80' : '#666' }}>
-                  {getTotalInvested() > 0 && totalValue > 0 ? formatPercent(scenarioPnl) : '—'}
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
 
